@@ -1,1552 +1,460 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Design Showcase | Vercel Preview</title>
+    <title>Rapport Stratégique : Protection Excel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        brand: {
+                            blue: '#2563eb',
+                            gold: '#b45309',
+                            warning: '#d97706', // Ajout pour l'option 4
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* MASTER STYLES 
-           These only affect the "Browser/Switcher" UI, not the designs themselves.
-        */
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            overflow: hidden; 
-            background: #050505; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        /* Print Styles for PDF export */
+        @media print {
+            .no-print { display: none; }
+            body { background: white; color: black; }
+            .shadow-lg, .shadow-sm { box-shadow: none !important; }
+            .bg-slate-50 { background: white !important; }
+            a { text-decoration: none; color: black; }
+            .page-break { page-break-before: always; }
         }
-        
-        /* The Stage: An Iframe that isolates CSS/JS for each design */
-        #viewport {
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            background: #fff; 
-            transition: opacity 0.4s ease;
-            opacity: 0; /* Starts hidden while loading */
-        }
-
-        /* The Switcher Dock (Floating Bottom UI) */
-        .switcher-dock {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(20, 20, 20, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 6px;
-            border-radius: 100px;
-            display: flex;
-            gap: 4px;
-            z-index: 9999;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.2);
-            animation: floatUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .switch-btn {
-            background: transparent;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 100px;
-            color: #888;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            outline: none;
-            white-space: nowrap;
-        }
-
-        .switch-btn:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.08);
-        }
-
-        /* Active State Design */
-        .switch-btn.active {
-            background: #fff;
-            color: #000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .switch-btn i {
-            font-size: 14px;
-        }
-
-        /* Loading Indicator */
-        .loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #333;
-            font-size: 24px;
-            z-index: -1;
-        }
-
-        @keyframes floatUp {
-            from { transform: translate(-50%, 120%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
+        .prose p { margin-bottom: 1rem; line-height: 1.6; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased">
 
-    <div class="loader"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 no-print">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="font-serif font-bold text-xl text-slate-900">Atobouh Ariel <span class="text-slate-400 font-sans text-sm font-normal ml-2">| Rapport Confidentiel</span></div>
+            <div class="hidden md:flex gap-6 text-sm font-medium text-slate-600">
+                <a href="#intro" class="hover:text-brand-blue transition-colors">Contexte</a>
+                <a href="#solution1" class="hover:text-brand-blue transition-colors">1. Offline</a>
+                <a href="#solution2" class="hover:text-brand-blue transition-colors">2. VM Online</a>
+                <a href="#solution3" class="hover:text-brand-blue transition-colors">3. VM Offline</a>
+                <a href="#solution4" class="text-brand-warning font-bold hover:text-orange-700 transition-colors">4. VM User</a>
+                <a href="#conclusion" class="hover:text-brand-blue transition-colors">Comparatif</a>
+            </div>
+            <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded text-xs font-semibold hover:bg-slate-800 transition">
+                <i class="fa-solid fa-file-pdf mr-2"></i>PDF
+            </button>
+        </div>
+    </nav>
 
-    <iframe id="viewport" title="Design Preview" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
+    <main class="max-w-6xl mx-auto px-6 pt-32 pb-24">
 
-    <div class="switcher-dock">
-        <button class="switch-btn active" onclick="loadDesign('echo', this)">
-            <i class="fa-solid fa-ghost"></i> ECHO
-        </button>
-        <button class="switch-btn" onclick="loadDesign('purepulse', this)">
-            <i class="fa-solid fa-droplet"></i> PurePulse
-        </button>
-        <button class="switch-btn" onclick="loadDesign('protocol', this)">
-            <i class="fa-solid fa-server"></i> PROTOCOL
-        </button>
-    </div>
+        <header id="intro" class="mb-20 text-center border-b border-slate-200 pb-12">
+            <div class="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-widest mb-4 rounded-full">Analyse Technique & Financière</div>
+            <h1 class="font-serif text-5xl md:text-6xl text-slate-900 mb-6 leading-tight">
+                Stratégies de Protection<br>Excel & Propriété Intellectuelle
+            </h1>
+            <p class="text-xl text-slate-500 max-w-2xl mx-auto font-light italic">
+                "Comment sécuriser notre savoir-faire tout en restant opérationnel ?"
+            </p>
+        </header>
 
-    <template id="template-echo">
-        <!DOCTYPE html>
-        <html lang="en" class="scroll-smooth">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>ECHO | Intelligent Engagement</title>
-            
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-            
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-            
-            <script src="https://cdn.tailwindcss.com"></script>
-            
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-            
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-24 items-center">
+            <div class="prose">
+                <h3 class="font-serif text-2xl mb-4 text-slate-900">L'enjeu de la décision</h3>
+                <p>
+                    Il n’existe pas de solution magique qui soit à la fois totalement hors ligne, inviolable et bon marché. Chaque approche est un compromis technique.
+                </p>
+                <p>
+                    Ce rapport détaille <strong>quatre architectures</strong> distinctes pour protéger vos fichiers Excel, allant de la méthode "flexible" (Offline) à la méthode "coffre-fort" (Machine Virtuelle).
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-brand-blue"></div>
+                <h4 class="font-bold text-sm uppercase tracking-wider text-slate-400 mb-4">Critères d'analyse</h4>
+                <ul class="space-y-3">
+                    <li class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-brand-blue"><i class="fa-solid fa-shield-halved text-sm"></i></span>
+                        <span class="font-medium text-slate-700">Sécurité du code source</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600"><i class="fa-solid fa-wifi text-sm"></i></span>
+                        <span class="font-medium text-slate-700">Dépendance à Internet</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="fa-solid fa-coins text-sm"></i></span>
+                        <span class="font-medium text-slate-700">Coût d'infrastructure</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
 
-            <script>
-                tailwind.config = {
-                    theme: {
-                        extend: {
-                            colors: {
-                                brand: {
-                                    dark: '#030712', // Very dark slate
-                                    surface: '#0F172A',
-                                    accent: '#6366F1', // Indigo
-                                    glow: '#A855F7', // Purple
-                                    success: '#10B981'
-                                }
-                            },
-                            fontFamily: {
-                                sans: ['Outfit', 'sans-serif'],
-                                display: ['Space Grotesk', 'sans-serif'],
-                            },
-                            backgroundImage: {
-                                'hero-glow': 'radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, rgba(3, 7, 18, 0) 50%)',
-                                'card-gradient': 'linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.4))'
-                            }
-                        }
-                    }
-                }
-            </script>
+        <section id="solution1" class="mb-24 scroll-mt-24">
+            <div class="flex items-baseline gap-4 mb-6 border-b border-slate-200 pb-4">
+                <h2 class="font-serif text-4xl text-slate-900">01. Offline (Confusion)</h2>
+                <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase rounded">La Référence Actuelle</span>
+            </div>
 
-            <style>
-                /* Custom Utilities */
-                body {
-                    background-color: #030712;
-                    color: #F8FAFC;
-                    overflow-x: hidden;
-                }
-                
-                .glass-nav {
-                    background: rgba(3, 7, 18, 0.7);
-                    backdrop-filter: blur(12px);
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                }
-
-                .text-gradient {
-                    background: linear-gradient(to right, #818CF8, #C084FC, #F472B6);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-
-                .blob {
-                    position: absolute;
-                    filter: blur(80px);
-                    z-index: -1;
-                    opacity: 0.6;
-                    animation: float 10s infinite ease-in-out;
-                }
-
-                @keyframes float {
-                    0%, 100% { transform: translate(0, 0); }
-                    50% { transform: translate(-20px, 20px); }
-                }
-
-                .card-hover {
-                    transition: all 0.4s ease;
-                }
-                .card-hover:hover {
-                    transform: translateY(-5px);
-                    border-color: rgba(129, 140, 248, 0.3);
-                    box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
-                }
-
-                /* Cursor blinking for typewriter effect */
-                .cursor-blink {
-                    animation: blink 1s step-end infinite;
-                }
-                @keyframes blink { 50% { opacity: 0; } }
-                
-                /* Grid Background */
-                .grid-bg {
-                    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-                    background-size: 40px 40px;
-                }
-            </style>
-        </head>
-        <body class="antialiased selection:bg-brand-accent selection:text-white">
-
-            <div class="blob bg-brand-accent w-96 h-96 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
-            <div class="blob bg-brand-glow w-[500px] h-[500px] rounded-full bottom-0 right-0 translate-x-1/3 translate-y-1/3 delay-1000"></div>
-
-            <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
-                <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <a href="#" class="flex items-center gap-2 group">
-                        <div class="w-8 h-8 rounded bg-gradient-to-tr from-brand-accent to-brand-glow flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform">E</div>
-                        <span class="font-display font-bold text-xl tracking-tight">ECHO</span>
-                    </a>
-                    
-                    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-                        <a href="#features" class="hover:text-white transition-colors">Features</a>
-                        <a href="#demo" class="hover:text-white transition-colors">How it Works</a>
-                        <a href="#impact" class="hover:text-white transition-colors">Impact</a>
-                    </div>
-
-                    <button class="bg-white text-black px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-200 transition-colors flex items-center gap-2">
-                        <span>Add to Chrome</span>
-                        <i class="fa-brands fa-chrome"></i>
-                    </button>
-                </div>
-            </nav>
-
-            <section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden grid-bg">
-                <div class="absolute inset-0 bg-hero-glow"></div>
-                
-                <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-                    <div class="text-center lg:text-left space-y-8">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-800 bg-slate-900/50 backdrop-blur text-xs font-medium text-brand-accent animate-fade-in-up">
-                            <span class="w-2 h-2 rounded-full bg-brand-success animate-pulse"></span>
-                            <span>v2.0 Now Available for LinkedIn</span>
-                        </div>
-                        
-                        <h1 class="font-display text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-white">
-                            Your Voice.<br>
-                            <span class="text-gradient">Amplified at Scale.</span>
-                        </h1>
-                        
-                        <p class="text-lg text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                            The enterprise-grade AI companion that learns your unique tone to ghostwrite authentic LinkedIn comments. Stop scrolling, start resonating.
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-8">
+                    <div>
+                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-regular fa-lightbulb text-brand-blue"></i> Le Principe</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            L’utilisateur installe le logiciel directement sur son PC. Il utilise Excel normalement. Cependant, les fichiers sont <strong>fortement "marqués" (watermark)</strong> et le code interne est rendu volontairement confus.
                         </p>
-                        
-                        <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                            <button class="w-full sm:w-auto px-8 py-4 bg-brand-accent hover:bg-indigo-500 text-white rounded-lg font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.7)] flex items-center justify-center gap-2">
-                                Start Free Trial
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                            <button class="w-full sm:w-auto px-8 py-4 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-lg font-medium transition-all backdrop-blur-sm">
-                                View Demo
-                            </button>
-                        </div>
-
-                        <div class="pt-6 flex items-center justify-center lg:justify-start gap-4 text-sm text-slate-500">
-                            <div class="flex -space-x-3">
-                                <img src="https://i.pravatar.cc/100?img=1" class="w-8 h-8 rounded-full border-2 border-brand-dark" alt="User">
-                                <img src="https://i.pravatar.cc/100?img=3" class="w-8 h-8 rounded-full border-2 border-brand-dark" alt="User">
-                                <img src="https://i.pravatar.cc/100?img=5" class="w-8 h-8 rounded-full border-2 border-brand-dark" alt="User">
-                            </div>
-                            <span>Trusted by 2,000+ Sales Leaders</span>
-                        </div>
-                    </div>
-
-                    <div class="relative lg:h-[600px] flex items-center justify-center perspective-1000">
-                        <div class="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 transform rotate-y-12 rotate-x-6 hover:rotate-0 transition-transform duration-700 ease-out" id="hero-card">
-                            
-                            <div class="flex items-start gap-3 mb-4 opacity-50">
-                                <div class="w-10 h-10 rounded-full bg-slate-700"></div>
-                                <div class="space-y-2 flex-1">
-                                    <div class="h-3 w-32 bg-slate-700 rounded"></div>
-                                    <div class="h-16 w-full bg-slate-800 rounded"></div>
-                                </div>
-                            </div>
-
-                            <div class="relative mt-6 pt-6 border-t border-slate-800">
-                                <div class="absolute -top-3 left-4 bg-brand-dark px-2 text-xs text-brand-accent font-bold uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fa-solid fa-bolt"></i> Echo Active
-                                </div>
-                                
-                                <div class="bg-brand-surface border border-brand-accent/30 rounded-lg p-4 shadow-lg">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-xs font-mono text-slate-400">Tone:</span>
-                                        <span class="text-xs bg-brand-accent/20 text-brand-accent px-2 py-0.5 rounded">Insightful</span>
-                                        <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">Witty</span>
-                                    </div>
-                                    <p class="text-slate-200 font-medium text-sm leading-relaxed" id="typewriter-text"></p>
-                                    <span class="cursor-blink inline-block w-0.5 h-4 bg-brand-accent align-middle"></span>
-                                </div>
-                                
-                                <button class="mt-3 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded transition-colors uppercase tracking-wide">
-                                    Post Comment
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="absolute -right-10 top-1/4 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl opacity-20 blur-xl animate-pulse"></div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="border-y border-white/5 bg-white/0 backdrop-blur-sm py-8">
-                <div class="max-w-7xl mx-auto px-6">
-                    <p class="text-center text-slate-500 text-sm mb-6 font-mono">POWERING GROWTH TEAMS AT</p>
-                    <div class="flex flex-wrap justify-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                        <i class="fa-brands fa-stripe text-3xl text-white"></i>
-                        <i class="fa-brands fa-aws text-3xl text-white"></i>
-                        <i class="fa-brands fa-hubspot text-3xl text-white"></i>
-                        <i class="fa-brands fa-salesforce text-3xl text-white"></i>
-                        <i class="fa-brands fa-linkedin text-3xl text-white"></i>
-                    </div>
-                </div>
-            </div>
-
-            <section id="features" class="py-24 relative">
-                <div class="max-w-7xl mx-auto px-6">
-                    <div class="text-center mb-16">
-                        <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-4">Intelligence built for <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">Growth</span></h2>
-                        <p class="text-slate-400 max-w-2xl mx-auto">Unlike generic AI, Echo analyzes your past posts to clone your unique syntax, vocabulary, and intellectual stance.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
-                        
-                        <div class="md:col-span-2 rounded-2xl bg-card-gradient border border-white/10 p-8 card-hover relative overflow-hidden group">
-                            <div class="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity">
-                                <i class="fa-solid fa-fingerprint text-9xl text-white"></i>
-                            </div>
-                            <div class="relative z-10 h-full flex flex-col justify-between">
-                                <div>
-                                    <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400">
-                                        <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
-                                    </div>
-                                    <h3 class="text-2xl font-bold text-white mb-2">Adaptive Voice Cloning</h3>
-                                    <p class="text-slate-400 max-w-md">Echo ingests your last 50 posts to create a "Digital Twin" profile. It doesn't sound like a robot; it sounds like you on your best day.</p>
-                                </div>
-                                <div class="flex gap-2">
-                                     <span class="text-xs border border-slate-600 px-2 py-1 rounded text-slate-300">Analysis Complete</span>
-                                     <span class="text-xs border border-blue-500/50 bg-blue-500/10 px-2 py-1 rounded text-blue-300">98% Match</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-2xl bg-card-gradient border border-white/10 p-8 card-hover flex flex-col justify-between">
-                            <div>
-                                <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400">
-                                    <i class="fa-solid fa-bolt text-xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-white mb-2">10x Engagement Speed</h3>
-                                <p class="text-slate-400 text-sm">Comment on 20 leads in the time it takes to write one manual reply.</p>
-                            </div>
-                            <div class="w-full bg-slate-700 h-1 rounded-full mt-4 overflow-hidden">
-                                <div class="bg-purple-500 h-full w-[85%] animate-pulse"></div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-2xl bg-card-gradient border border-white/10 p-8 card-hover flex flex-col justify-between">
-                            <div>
-                                <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-4 text-green-400">
-                                    <i class="fa-solid fa-brain text-xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-white mb-2">Contextual IQ</h3>
-                                <p class="text-slate-400 text-sm">Echo reads the article, image, and previous comments before suggesting a reply.</p>
-                            </div>
-                        </div>
-
-                        <div class="md:col-span-2 rounded-2xl bg-card-gradient border border-white/10 p-6 card-hover relative flex items-center">
-                            <div class="w-full h-full">
-                                <div class="flex justify-between items-center mb-4">
-                                     <h3 class="text-lg font-bold text-white">Engagement Velocity</h3>
-                                     <div class="flex gap-4 text-xs">
-                                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-500"></span> Manual</span>
-                                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-accent"></span> With Echo</span>
-                                     </div>
-                                </div>
-                                <div class="h-[200px] w-full">
-                                    <canvas id="engagementChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <section id="demo" class="py-24 bg-slate-900/50">
-                <div class="max-w-5xl mx-auto px-6">
-                    <div class="space-y-12">
-                        <div class="flex flex-col md:flex-row gap-8 items-center group">
-                            <div class="w-full md:w-1/2 flex justify-end order-2 md:order-1">
-                                <div class="w-16 h-16 rounded-full border-2 border-brand-accent/50 text-brand-accent flex items-center justify-center text-2xl font-bold group-hover:bg-brand-accent group-hover:text-white transition-colors">1</div>
-                            </div>
-                            <div class="w-full md:w-1/2 order-1 md:order-2">
-                                <h3 class="text-2xl font-bold text-white mb-2">Highlight the Post</h3>
-                                <p class="text-slate-400">Simply hover over any LinkedIn post. The Echo icon appears instantly, ready to assist.</p>
-                            </div>
-                        </div>
-                         <div class="h-12 w-0.5 bg-slate-800 mx-auto"></div>
-                        
-                         <div class="flex flex-col md:flex-row gap-8 items-center group">
-                            <div class="w-full md:w-1/2 text-right order-2 md:order-1">
-                                <h3 class="text-2xl font-bold text-white mb-2">Select Your Intent</h3>
-                                <p class="text-slate-400">Choose from predefined intents: Agree, Question, Congratulate, or Debate. Echo adjusts the psychology.</p>
-                            </div>
-                            <div class="w-full md:w-1/2 order-1 md:order-2">
-                                <div class="w-16 h-16 rounded-full border-2 border-purple-500/50 text-purple-400 flex items-center justify-center text-2xl font-bold group-hover:bg-purple-500 group-hover:text-white transition-colors">2</div>
-                            </div>
-                        </div>
-                        <div class="h-12 w-0.5 bg-slate-800 mx-auto"></div>
-
-                         <div class="flex flex-col md:flex-row gap-8 items-center group">
-                            <div class="w-full md:w-1/2 flex justify-end order-2 md:order-1">
-                                <div class="w-16 h-16 rounded-full border-2 border-green-500/50 text-green-400 flex items-center justify-center text-2xl font-bold group-hover:bg-green-500 group-hover:text-white transition-colors">3</div>
-                            </div>
-                            <div class="w-full md:w-1/2 order-1 md:order-2">
-                                <h3 class="text-2xl font-bold text-white mb-2">Publish & Grow</h3>
-                                <p class="text-slate-400">Edit if needed, then post. Watch your profile views and connection requests climb.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="py-24 relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-t from-brand-accent/10 to-transparent"></div>
-                
-                <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
-                    <h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-6">Ready to lead the conversation?</h2>
-                    <p class="text-xl text-slate-300 mb-10">Join 2,000+ solopreneurs dominating their niche with Echo.</p>
-                    
-                    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 md:p-12 shadow-2xl inline-block w-full max-w-lg">
-                        <div class="flex justify-center items-baseline gap-2 mb-6">
-                            <span class="text-5xl font-bold text-white">$19</span>
-                            <span class="text-slate-500">/month</span>
-                        </div>
-                        <ul class="text-left space-y-4 mb-8 text-slate-300">
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Unlimited AI Comments</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Voice Clone (Train on your profile)</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Sentiment Analysis</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Chrome & Edge Support</li>
-                        </ul>
-                        <button class="w-full py-4 bg-white text-brand-dark font-bold rounded-xl hover:bg-slate-200 transition-colors transform hover:scale-105 duration-200">
-                            Get Started Now
-                        </button>
-                        <p class="text-xs text-slate-500 mt-4">7-day money-back guarantee. No credit card required for trial.</p>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="border-t border-white/5 bg-black py-12 text-sm">
-                <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded bg-gradient-to-tr from-brand-accent to-brand-glow"></div>
-                        <span class="font-display font-bold text-lg text-white">ECHO</span>
-                    </div>
-                    <div class="flex gap-6 text-slate-500">
-                        <a href="#" class="hover:text-white transition-colors">Privacy</a>
-                        <a href="#" class="hover:text-white transition-colors">Terms</a>
-                        <a href="#" class="hover:text-white transition-colors">Twitter</a>
-                        <a href="#" class="hover:text-white transition-colors">LinkedIn</a>
-                    </div>
-                    <div class="text-slate-600">
-                        &copy; 2024 Echo AI Labs. All rights reserved.
-                    </div>
-                </div>
-            </footer>
-
-            <script>
-                // 1. GSAP Animations
-                gsap.registerPlugin(ScrollTrigger);
-
-                // Hero Text Stagger
-                gsap.from("h1", { duration: 1, y: 50, opacity: 0, ease: "power3.out" });
-                gsap.from(".animate-fade-in-up", { duration: 1, y: 20, opacity: 0, delay: 0.2, ease: "power3.out" });
-
-                // Feature Cards Stagger on Scroll
-                gsap.utils.toArray('.card-hover').forEach((card, i) => {
-                    gsap.from(card, {
-                        scrollTrigger: {
-                            trigger: card,
-                            start: "top 85%",
-                        },
-                        y: 50,
-                        opacity: 0,
-                        duration: 0.6,
-                        delay: i * 0.1
-                    });
-                });
-
-                // 2. Typewriter Effect Logic for Hero
-                const textToType = "Great perspective! I've noticed that consistency usually beats intensity in sales cycles. Would you agree that frequency matters more than volume initially?";
-                const typeWriterElement = document.getElementById('typewriter-text');
-                let typeIndex = 0;
-
-                function typeWriter() {
-                    if (typeIndex < textToType.length) {
-                        typeWriterElement.innerHTML += textToType.charAt(typeIndex);
-                        typeIndex++;
-                        setTimeout(typeWriter, 30 + Math.random() * 50); // Randomize typing speed for realism
-                    } else {
-                        // Reset after delay
-                        setTimeout(() => {
-                            typeWriterElement.innerHTML = '';
-                            typeIndex = 0;
-                            typeWriter();
-                        }, 4000);
-                    }
-                }
-                // Start typing after initial load
-                setTimeout(typeWriter, 1500);
-
-                // 3. Chart.js Implementation
-                const ctx = document.getElementById('engagementChart').getContext('2d');
-                
-                // Gradient for chart
-                const gradientEcho = ctx.createLinearGradient(0, 0, 0, 200);
-                gradientEcho.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
-                gradientEcho.addColorStop(1, 'rgba(99, 102, 241, 0)');
-
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                        datasets: [
-                            {
-                                label: 'With Echo',
-                                data: [120, 250, 450, 580, 800, 950, 1200],
-                                borderColor: '#6366F1',
-                                backgroundColor: gradientEcho,
-                                borderWidth: 3,
-                                pointBackgroundColor: '#FFFFFF',
-                                pointBorderColor: '#6366F1',
-                                fill: true,
-                                tension: 0.4
-                            },
-                            {
-                                label: 'Manual',
-                                data: [100, 110, 105, 130, 125, 140, 135],
-                                borderColor: '#64748B',
-                                borderWidth: 2,
-                                borderDash: [5, 5],
-                                pointRadius: 0,
-                                tension: 0.4
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                                titleColor: '#F8FAFC',
-                                bodyColor: '#CBD5E1',
-                                borderColor: 'rgba(255,255,255,0.1)',
-                                borderWidth: 1
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: { display: false, drawBorder: false },
-                                ticks: { color: '#64748B' }
-                            },
-                            y: {
-                                grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-                                ticks: { display: false }
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        }
-                    }
-                });
-            </script>
-        </body>
-        </html>
-    </template>
-
-    <template id="template-purepulse">
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>PurePulse | Molecular Hydration Intelligence</title>
-            
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-            
-            <script src="https://cdn.tailwindcss.com"></script>
-            
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-            <script>
-                tailwind.config = {
-                    theme: {
-                        extend: {
-                            colors: {
-                                pp: {
-                                    black: '#050505',
-                                    charcoal: '#111111',
-                                    neon: '#CCFF00', // Acid Green for bio-hacking vibe
-                                    teal: '#00F0FF',  // Cyber Teal
-                                    white: '#F0F0F0'
-                                }
-                            },
-                            fontFamily: {
-                                sans: ['Inter', 'sans-serif'],
-                                display: ['Syncopate', 'sans-serif'],
-                                mono: ['JetBrains Mono', 'monospace'],
-                            },
-                            backgroundImage: {
-                                'mesh': 'radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.03) 0%, transparent 50%)',
-                            }
-                        }
-                    }
-                }
-            </script>
-
-            <style>
-                body {
-                    background-color: #050505;
-                    color: #F0F0F0;
-                    overflow-x: hidden;
-                    cursor: crosshair; /* Techy feel */
-                }
-
-                /* Noise Overlay for Texture */
-                .noise {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    pointer-events: none;
-                    z-index: 50;
-                    opacity: 0.03;
-                    background: url('https://grainy-gradients.vercel.app/noise.svg');
-                }
-
-                /* Custom Scrollbar */
-                ::-webkit-scrollbar {
-                    width: 6px;
-                }
-                ::-webkit-scrollbar-track {
-                    background: #111;
-                }
-                ::-webkit-scrollbar-thumb {
-                    background: #333;
-                }
-
-                /* Marquee Animation */
-                .marquee-container {
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-                .marquee-content {
-                    display: inline-block;
-                    animation: marquee 20s linear infinite;
-                }
-                @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
-
-                /* Glitch Effect on Hover */
-                .glitch-hover:hover {
-                    animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-                    color: #CCFF00;
-                }
-                @keyframes glitch {
-                    0% { transform: translate(0) }
-                    20% { transform: translate(-2px, 2px) }
-                    40% { transform: translate(-2px, -2px) }
-                    60% { transform: translate(2px, 2px) }
-                    80% { transform: translate(2px, -2px) }
-                    100% { transform: translate(0) }
-                }
-
-                .outline-text {
-                    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
-                    color: transparent;
-                }
-
-                /* Sensor Pulse Animation */
-                .sensor-ring {
-                    border: 1px solid rgba(0, 240, 255, 0.3);
-                    border-radius: 50%;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    animation: ripple 3s infinite;
-                }
-                @keyframes ripple {
-                    0% { width: 0px; height: 0px; opacity: 1; }
-                    100% { width: 400px; height: 400px; opacity: 0; }
-                }
-            </style>
-        </head>
-        <body class="selection:bg-pp-neon selection:text-black">
-
-            <div class="noise"></div>
-
-            <nav class="fixed top-0 w-full z-40 px-6 py-6 flex justify-between items-center mix-blend-difference">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-pp-neon"></div>
-                    <span class="font-display font-bold text-lg tracking-widest text-white">PUREPULSE</span>
-                </div>
-                <div class="hidden md:flex gap-8 font-mono text-xs tracking-widest text-gray-400">
-                    <a href="#" class="hover:text-pp-neon transition-colors">[ TECHNOLOGY ]</a>
-                    <a href="#" class="hover:text-pp-neon transition-colors">[ DATA ]</a>
-                    <a href="#" class="hover:text-pp-neon transition-colors">[ ATHLETES ]</a>
-                </div>
-                <button class="border border-white/20 px-6 py-2 font-mono text-xs hover:bg-pp-neon hover:text-black hover:border-pp-neon transition-all duration-300">
-                    PRE-ORDER BATCH 01
-                </button>
-            </nav>
-
-            <header class="relative min-h-screen flex flex-col justify-center items-center overflow-hidden">
-                
-                <div class="absolute inset-0 bg-mesh opacity-50"></div>
-                
-                <div class="relative z-10 text-center space-y-4">
-                    <div class="overflow-hidden">
-                        <p class="font-mono text-pp-teal text-xs md:text-sm tracking-[0.3em] reveal-text">BIOMETRIC HYDRATION SYSTEM</p>
-                    </div>
-                    <div class="overflow-hidden">
-                        <h1 class="font-display text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white leading-none reveal-text mt-4">
-                            DONT JUST<br>
-                            <span class="text-pp-charcoal text-stroke-white outline-text">DRINK.</span> FUEL.
-                        </h1>
-                    </div>
-                    
-                    <div class="mt-12 max-w-xl mx-auto text-gray-400 font-sans font-light leading-relaxed reveal-opacity">
-                        The world's first spectroscopic water bottle. Real-time electrolyte analysis. 
-                        Personalized dosage. Optimization at the molecular level.
-                    </div>
-
-                    <div class="pt-8 reveal-opacity">
-                        <a href="#tech" class="group flex flex-col items-center gap-2 text-xs font-mono text-gray-500">
-                            <span>SCROLL TO INITIALIZE</span>
-                            <div class="h-12 w-[1px] bg-gradient-to-b from-pp-neon to-transparent"></div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="absolute z-0 w-[600px] h-[600px] opacity-20 pointer-events-none">
-                    <div class="sensor-ring" style="animation-delay: 0s"></div>
-                    <div class="sensor-ring" style="animation-delay: 1s"></div>
-                    <div class="sensor-ring" style="animation-delay: 2s"></div>
-                </div>
-            </header>
-
-            <div class="bg-pp-neon py-3 border-y border-black">
-                <div class="marquee-container">
-                    <div class="marquee-content font-display font-bold text-black text-4xl tracking-tight">
-                        MAGNESIUM LEVELS: OPTIMAL +++ SODIUM: LOW +++ POTASSIUM: DETECTED +++ HYDRATION SCORE: 98% +++ REPLENISH NOW +++ 
-                        MAGNESIUM LEVELS: OPTIMAL +++ SODIUM: LOW +++ POTASSIUM: DETECTED +++ HYDRATION SCORE: 98% +++ REPLENISH NOW +++
-                    </div>
-                </div>
-            </div>
-
-            <section class="py-32 px-6 bg-pp-charcoal relative">
-                <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
-                    <div>
-                        <h2 class="font-display text-4xl md:text-5xl mb-8">GUESSWORK IS <br><span class="text-pp-teal">OBSOLETE</span></h2>
-                        <div class="space-y-6 text-gray-400 font-light">
-                            <p>Elite performance requires precision. Generic hydration strategies fail because your physiology changes hourly.</p>
-                            <p>Sweat composition varies based on humidity, intensity, and genetics. Drinking plain water dilutes your blood sodium. Drinking generic sports drinks spikes your insulin.</p>
-                            <div class="border-l-2 border-pp-neon pl-6 py-2 mt-8">
-                                <p class="text-white font-mono text-sm">"PurePulse closes the loop between exertion and recovery."</p>
-                                <p class="text-gray-500 text-xs mt-2">— DR. ELARA VANCE, NEUROSCIENTIST</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-black border border-white/10 p-8 rounded-none relative overflow-hidden group">
-                        <div class="absolute top-2 right-2 flex gap-1">
-                            <div class="w-1 h-1 bg-red-500 rounded-full animate-pulse"></div>
-                            <div class="text-[10px] font-mono text-red-500">LIVE SENSOR DATA</div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4 mt-8">
-                            <div class="bg-pp-charcoal p-4 border border-white/5">
-                                <div class="text-[10px] font-mono text-gray-500 mb-1">Na+ (SODIUM)</div>
-                                <div class="text-3xl font-display text-white counter" data-target="1420">0</div>
-                                <div class="text-xs text-pp-teal mt-1">mg/L</div>
-                            </div>
-                            <div class="bg-pp-charcoal p-4 border border-white/5">
-                                <div class="text-[10px] font-mono text-gray-500 mb-1">K+ (POTASSIUM)</div>
-                                <div class="text-3xl font-display text-white counter" data-target="480">0</div>
-                                <div class="text-xs text-pp-teal mt-1">mg/L</div>
-                            </div>
-                            <div class="bg-pp-charcoal p-4 border border-white/5 col-span-2">
-                                <div class="text-[10px] font-mono text-gray-500 mb-1">MINERAL DENSITY</div>
-                                <div class="flex items-end gap-1 h-16 mt-2">
-                                    <div class="w-1/5 bg-gray-700 h-full animate-[pulse_2s_ease-in-out_infinite]"></div>
-                                    <div class="w-1/5 bg-gray-600 h-[80%]"></div>
-                                    <div class="w-1/5 bg-gray-500 h-[40%]"></div>
-                                    <div class="w-1/5 bg-pp-neon h-[90%] shadow-[0_0_15px_#CCFF00]"></div>
-                                    <div class="w-1/5 bg-gray-700 h-[60%]"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tech" class="relative py-32 bg-black">
-                <div class="max-w-7xl mx-auto px-6">
-                    <div class="flex flex-col md:flex-row gap-12">
-                        <div class="w-full md:w-1/2 h-[50vh] md:h-screen sticky top-0 flex items-center justify-center">
-                            <div class="relative w-80 h-80 rounded-full border border-white/10 flex items-center justify-center">
-                                <div class="absolute inset-0 border border-pp-teal/20 rounded-full scale-125"></div>
-                                <div class="absolute inset-0 border border-dotted border-white/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
-                                
-                                <div class="w-64 h-64 bg-gradient-to-br from-gray-900 to-black rounded-full flex items-center justify-center border border-white/10 shadow-2xl relative z-10">
-                                    <i class="fa-solid fa-microchip text-4xl text-white/50"></i>
-                                    <div class="absolute inset-0 bg-pp-neon/5 rounded-full blur-xl"></div>
-                                </div>
-                                
-                                <div class="absolute w-full h-1 bg-pp-neon top-1/2 left-0 shadow-[0_0_20px_#CCFF00] animate-[scan_2s_ease-in-out_infinite]"></div>
-                            </div>
-                        </div>
-
-                        <div class="w-full md:w-1/2 space-y-[40vh] py-[10vh]">
-                            
-                            <div class="tech-card opacity-20 transition-opacity duration-500">
-                                <span class="text-pp-neon font-mono text-sm">01. HARDWARE</span>
-                                <h3 class="text-3xl font-bold mt-2 mb-4">Optical Spectrometry</h3>
-                                <p class="text-gray-400">Military-grade sensors embedded in the cap fire light pulses into the liquid, measuring refraction to determine exact mineral density within 0.05% accuracy.</p>
-                            </div>
-
-                            <div class="tech-card opacity-20 transition-opacity duration-500">
-                                <span class="text-pp-neon font-mono text-sm">02. CONNECTIVITY</span>
-                                <h3 class="text-3xl font-bold mt-2 mb-4">Zero-Latency Sync</h3>
-                                <p class="text-gray-400">Bluetooth 5.3 Low Energy allows for continuous data streaming to your phone or Apple Watch without draining the bottle's 30-day battery life.</p>
-                            </div>
-
-                            <div class="tech-card opacity-20 transition-opacity duration-500">
-                                <span class="text-pp-neon font-mono text-sm">03. MATERIAL</span>
-                                <h3 class="text-3xl font-bold mt-2 mb-4">Aerospace Titanium</h3>
-                                <p class="text-gray-400">Double-walled Grade 5 Titanium chassis. Antibacterial, ultra-light, and indestructible. Designed for the gym, the trail, and the boardroom.</p>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="py-32 bg-pp-charcoal relative">
-                <div class="absolute inset-0" style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 30px 30px;"></div>
-
-                <div class="max-w-7xl mx-auto px-6 relative z-10">
-                    <div class="flex justify-between items-end mb-16">
-                        <h2 class="font-display text-4xl">THE <span class="text-pp-neon">DASHBOARD</span></h2>
-                        <span class="font-mono text-xs text-gray-500 hidden md:block">IOS / ANDROID COMPATIBLE</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
-                        
-                        <div class="md:col-span-2 md:row-span-2 bg-black border border-white/10 p-6 flex flex-col justify-between overflow-hidden relative group">
-                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pp-neon to-pp-teal transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                            <div>
-                                <h3 class="font-bold text-xl mb-1">Circadian Rhythm Sync</h3>
-                                <p class="text-sm text-gray-500">The app suggests supplements based on your sleep data and upcoming workout intensity.</p>
-                            </div>
-                            <div class="mt-8 bg-gray-900 rounded-t-xl p-4 border-t border-x border-gray-800 h-full transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                                <div class="flex justify-between text-xs font-mono text-gray-400 mb-4">
-                                    <span>RECOVERY MODE</span>
-                                    <span class="text-pp-neon">ACTIVE</span>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="bg-gray-800 p-3 rounded flex justify-between items-center">
-                                        <span>Sodium</span>
-                                        <span class="text-pp-teal">Needs +200mg</span>
-                                    </div>
-                                    <div class="bg-gray-800 p-3 rounded flex justify-between items-center">
-                                        <span>Magnesium</span>
-                                        <span class="text-green-400">Optimal</span>
-                                    </div>
-                                    <div class="bg-gray-800 p-3 rounded flex justify-between items-center">
-                                        <span>Water Intake</span>
-                                        <span class="text-white">2.4L / 3.0L</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-black border border-white/10 p-6 hover:bg-white/5 transition-colors">
-                            <i class="fa-solid fa-battery-full text-pp-teal text-2xl mb-4"></i>
-                            <h4 class="font-mono text-sm text-gray-400">BATTERY</h4>
-                            <p class="text-2xl font-display font-bold">30 DAYS</p>
-                        </div>
-
-                        <div class="bg-black border border-white/10 p-6 hover:bg-white/5 transition-colors">
-                            <i class="fa-solid fa-weight-hanging text-pp-teal text-2xl mb-4"></i>
-                            <h4 class="font-mono text-sm text-gray-400">WEIGHT</h4>
-                            <p class="text-2xl font-display font-bold">280g</p>
-                        </div>
-
-                        <div class="md:col-span-2 bg-pp-neon text-black p-6 flex flex-col justify-center items-center text-center">
-                            <h3 class="font-display font-bold text-2xl mb-2">ECOSYSTEM READY</h3>
-                            <p class="text-sm max-w-sm font-medium">Seamlessly integrates with Apple Health, Whoop, Oura, and Garmin Connect.</p>
-                            <div class="flex gap-4 mt-6 text-2xl opacity-75">
-                                <i class="fa-brands fa-apple"></i>
-                                <i class="fa-brands fa-strava"></i>
-                                <i class="fa-solid fa-heart-pulse"></i>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <footer class="bg-black py-24 border-t border-white/10">
-                <div class="max-w-7xl mx-auto px-6 text-center">
-                    <h2 class="font-display text-4xl md:text-7xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-800">
-                        MASTER YOUR<br>BIOLOGY
-                    </h2>
-                    <p class="text-gray-400 max-w-lg mx-auto mb-10 font-mono text-sm">
-                        Batch 01 is 85% allocated. Reserve yours today to lock in early pricing and lifetime app access.
-                    </p>
-                    <div class="flex flex-col md:flex-row justify-center gap-4">
-                        <button class="bg-pp-neon text-black px-8 py-4 font-bold tracking-widest hover:bg-white transition-colors uppercase">
-                            Pre-Order ($129)
-                        </button>
-                        <button class="border border-white text-white px-8 py-4 font-bold tracking-widest hover:bg-white hover:text-black transition-colors uppercase">
-                            Read the Whitepaper
-                        </button>
-                    </div>
-                    
-                    <div class="mt-20 text-xs text-gray-700 font-mono">
-                        &copy; 2024 PUREPULSE LABS. DESIGNED IN SAN FRANCISCO. ASSEMBLED IN TOKYO.
-                    </div>
-                </div>
-            </footer>
-
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-            <script>
-                gsap.registerPlugin(ScrollTrigger);
-
-                // 1. Hero Reveal
-                const timeline = gsap.timeline();
-                timeline.from(".reveal-text", {
-                    y: 100,
-                    opacity: 0,
-                    duration: 1.2,
-                    stagger: 0.2,
-                    ease: "power4.out"
-                })
-                .from(".reveal-opacity", {
-                    opacity: 0,
-                    duration: 1,
-                    stagger: 0.2
-                }, "-=0.5");
-
-                // 2. Tech Section Sticky Highlight
-                const cards = gsap.utils.toArray(".tech-card");
-                
-                cards.forEach((card, i) => {
-                    ScrollTrigger.create({
-                        trigger: card,
-                        start: "top center",
-                        end: "bottom center",
-                        onEnter: () => gsap.to(card, { opacity: 1, x: 20, color: "#fff", duration: 0.3 }),
-                        onLeave: () => gsap.to(card, { opacity: 0.2, x: 0, color: "gray", duration: 0.3 }),
-                        onEnterBack: () => gsap.to(card, { opacity: 1, x: 20, color: "#fff", duration: 0.3 }),
-                        onLeaveBack: () => gsap.to(card, { opacity: 0.2, x: 0, color: "gray", duration: 0.3 })
-                    });
-                });
-
-                // 3. Counter Animation for Data
-                gsap.utils.toArray(".counter").forEach(counter => {
-                    let target = counter.getAttribute("data-target");
-                    ScrollTrigger.create({
-                        trigger: counter,
-                        start: "top 85%",
-                        once: true,
-                        onEnter: () => {
-                            gsap.to(counter, {
-                                innerHTML: target,
-                                duration: 2,
-                                snap: { innerHTML: 1 },
-                                ease: "power2.out"
-                            });
-                        }
-                    });
-                });
-
-            </script>
-        </body>
-        </html>
-    </template>
-
-    <template id="template-protocol">
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>PROTOCOL | Emergency DevOps Response</title>
-            
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-            
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-            
-            <script src="https://cdn.tailwindcss.com"></script>
-            
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-            <script>
-                tailwind.config = {
-                    theme: {
-                        extend: {
-                            colors: {
-                                corp: {
-                                    black: '#0A0A0A',
-                                    charcoal: '#1A1A1A',
-                                    slate: '#E5E5E5',
-                                    red: '#D92323',     // Signal Red (Emergency)
-                                    blue: '#0047AB'     // Trust Blue (Deep)
-                                }
-                            },
-                            fontFamily: {
-                                sans: ['Manrope', 'sans-serif'],
-                                mono: ['Roboto Mono', 'monospace'],
-                            },
-                            backgroundImage: {
-                                'grid-pattern': 'linear-gradient(#E5E5E5 1px, transparent 1px), linear-gradient(90deg, #E5E5E5 1px, transparent 1px)',
-                            }
-                        }
-                    }
-                }
-            </script>
-
-            <style>
-                body {
-                    background-color: #FFFFFF;
-                    color: #0A0A0A;
-                }
-
-                /* Subtle Grid Background for that "Blueprint" feel */
-                .bg-grid {
-                    background-size: 40px 40px;
-                    background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
-                                      linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
-                }
-
-                /* The "Red Line" - A visual motif for the emergency path */
-                .red-line {
-                    width: 2px;
-                    background-color: #D92323;
-                    position: absolute;
-                    z-index: 10;
-                }
-
-                /* Terminal Window Styling */
-                .terminal-window {
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                    border: 1px solid #333;
-                }
-
-                .cursor-block {
-                    display: inline-block;
-                    width: 10px;
-                    height: 18px;
-                    background-color: #D92323;
-                    animation: blink 1s step-end infinite;
-                    vertical-align: middle;
-                }
-
-                @keyframes blink { 50% { opacity: 0; } }
-
-                /* Utility Classes */
-                .section-divider {
-                    border-top: 1px solid #E5E5E5;
-                }
-
-                /* Button Hover Effects - Serious, not bouncy */
-                .btn-primary {
-                    transition: all 0.2s ease;
-                }
-                .btn-primary:hover {
-                    background-color: #B91C1C;
-                    transform: translateY(-1px);
-                }
-            </style>
-        </head>
-        <body class="antialiased">
-
-            <div class="bg-corp-black text-white text-xs font-mono py-2 px-6 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <span class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> SYSTEM: OPERATIONAL</span>
-                    <span class="text-gray-500">|</span>
-                    <span>AVG RESPONSE TIME: 4m 12s</span>
-                </div>
-                <div>
-                    <a href="#" class="hover:text-corp-red transition-colors">ENGINEER LOGIN ></a>
-                </div>
-            </div>
-
-            <nav class="sticky top-0 bg-white/95 backdrop-blur z-50 border-b border-gray-200">
-                <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-corp-red flex items-center justify-center text-white font-bold text-xl rounded-sm">P</div>
-                        <div class="leading-tight">
-                            <h1 class="font-bold tracking-tight text-lg">PROTOCOL</h1>
-                            <p class="text-[10px] font-mono tracking-widest text-gray-500 uppercase">By DevSquad</p>
-                        </div>
-                    </div>
-
-                    <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-600">
-                        <a href="#methodology" class="hover:text-black transition-colors">METHODOLOGY</a>
-                        <a href="#engineers" class="hover:text-black transition-colors">THE SQUAD</a>
-                        <a href="#guarantee" class="hover:text-black transition-colors">SLA GUARANTEE</a>
-                    </div>
-
-                    <button class="bg-corp-black text-white px-6 py-3 text-sm font-bold uppercase tracking-wide hover:bg-corp-charcoal transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-phone-volume text-corp-red"></i>
-                        Emergency Dispatch
-                    </button>
-                </div>
-            </nav>
-
-            <section class="relative pt-24 pb-32 overflow-hidden bg-grid">
-                <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-                    
-                    <div class="space-y-8 z-10">
-                        <div class="inline-block border border-corp-red/30 bg-red-50 text-corp-red px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-sm">
-                            Deployed for Series B+ Startups
-                        </div>
-                        
-                        <h2 class="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tight">
-                            Your deployment is stuck.<br>
-                            <span class="text-corp-red">We unblock it.</span>
-                        </h2>
-                        
-                        <p class="text-xl text-gray-600 max-w-lg leading-relaxed">
-                            Senior DevOps engineers available on-demand for 1-hour emergency audits. No long-term contracts. Just immediate remediation.
+                        <p class="text-slate-600 leading-relaxed mt-2">
+                            Si quelqu’un copie le fichier, il obtient un document fonctionnel uniquement sur sa machine, mais illisible et inutilisable pour un concurrent ou un tiers.
                         </p>
-
-                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button class="btn-primary bg-corp-red text-white px-8 py-4 text-sm font-bold uppercase tracking-widest shadow-lg shadow-red-500/20 rounded-sm">
-                                Request Immediate Audit
-                            </button>
-                            <button class="border border-gray-300 bg-white hover:bg-gray-50 text-black px-8 py-4 text-sm font-bold uppercase tracking-widest rounded-sm">
-                                View Service Brief
-                            </button>
-                        </div>
-                        
-                        <div class="pt-8 border-t border-gray-200 flex gap-8">
-                            <div>
-                                <p class="text-3xl font-bold">1hr</p>
-                                <p class="text-xs text-gray-500 font-mono uppercase">Max Response Time</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl font-bold">L5+</p>
-                                <p class="text-xs text-gray-500 font-mono uppercase">Seniority Level</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl font-bold">100%</p>
-                                <p class="text-xs text-gray-500 font-mono uppercase">Fix Rate</p>
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="relative">
-                        <div class="red-line h-full left-0 top-0 hidden lg:block"></div>
-                        
-                        <div class="terminal-window bg-[#1E1E1E] rounded-md overflow-hidden relative z-20">
-                            <div class="bg-[#2D2D2D] px-4 py-2 flex items-center gap-2 border-b border-black">
-                                <div class="flex gap-1.5">
-                                    <div class="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
-                                    <div class="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                                    <div class="w-3 h-3 rounded-full bg-[#27C93F]"></div>
-                                </div>
-                                <div class="ml-4 text-xs text-gray-400 font-mono flex-1 text-center">root@protocol-audit:~</div>
-                            </div>
-                            
-                            <div class="p-6 font-mono text-sm h-[400px] overflow-y-auto text-gray-300" id="terminal-content">
-                                <div class="mb-2"><span class="text-green-500">➜</span> <span class="text-white">protocol-cli audit --target=production-cluster</span></div>
-                                <div class="text-gray-500 mb-2">Initializing secure handshake...</div>
-                                <div class="text-gray-500 mb-2">Connected to AWS (us-east-1). Scanning VPC configuration...</div>
-                                <div id="scan-output"></div>
-                                <span class="cursor-block"></span>
-                            </div>
-
-                            <div class="absolute bottom-6 right-6 bg-corp-red text-white px-4 py-2 font-bold text-xs uppercase tracking-widest shadow-xl animate-pulse hidden" id="error-alert">
-                                <i class="fa-solid fa-triangle-exclamation mr-2"></i> Bottleneck Found
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-50/50 p-6 rounded-lg border border-green-100">
+                            <h5 class="font-bold text-green-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-check"></i> Avantages</h5>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex gap-2"><span class="text-green-600">•</span> 100% Offline (Zéro internet requis)</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Pas de serveur à gérer</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Coût très faible</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Suffisant pour 95% des abus</li>
+                            </ul>
                         </div>
-
-                        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-gray-100 rounded-full z-0 mix-blend-multiply filter blur-3xl opacity-50"></div>
+                        <div class="bg-red-50/50 p-6 rounded-lg border border-red-100">
+                            <h5 class="font-bold text-red-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-xmark"></i> Limites</h5>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Pas mathématiquement inviolable</li>
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Le fichier source est "chez le client"</li>
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Un expert motivé peut le casser</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <div class="border-y border-gray-100 py-12 bg-white">
-                <div class="max-w-7xl mx-auto px-6 flex flex-wrap justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                    <div class="flex items-center gap-2"><i class="fa-brands fa-aws text-3xl"></i> <span class="font-bold text-xl">AWS Partner</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-brands fa-google text-3xl"></i> <span class="font-bold text-xl">Cloud</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-brands fa-docker text-3xl"></i> <span class="font-bold text-xl">Docker</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-brands fa-linux text-3xl"></i> <span class="font-bold text-xl">Linux Foundation</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-brands fa-jira text-3xl"></i> <span class="font-bold text-xl">Atlassian</span></div>
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-24">
+                        <h5 class="font-serif text-xl text-slate-900 mb-4">Profil Idéal</h5>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">PME</span>
+                            <span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">Zones Instables</span>
+                            <span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">Budget Limité</span>
+                        </div>
+                        <div class="border-t border-slate-100 pt-4">
+                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Coût Estimé</p>
+                            <p class="text-2xl font-serif text-slate-900">Faible</p>
+                            <p class="text-sm text-slate-500 mt-1">Coût unique de développement logiciel uniquement.</p>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
+
+        <section id="solution2" class="mb-24 scroll-mt-24">
+            <div class="flex items-baseline gap-4 mb-6 border-b border-slate-200 pb-4">
+                <h2 class="font-serif text-4xl text-slate-900">02. VM Online (Cloud)</h2>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded">Sécurité Maximale</span>
             </div>
 
-            <section id="methodology" class="py-24 bg-gray-50">
-                <div class="max-w-7xl mx-auto px-6">
-                    <div class="mb-16 max-w-2xl">
-                        <h3 class="text-corp-red font-bold uppercase tracking-widest text-sm mb-3">Operating Procedure</h3>
-                        <h2 class="text-4xl font-bold text-corp-black">We don't guess. We inspect.</h2>
-                        <p class="mt-4 text-gray-600">Our engineers skip the onboarding fluff. We use read-only access to diagnose pipeline failures, IAM lockouts, and database deadlocks within 60 minutes.</p>
-                    </div>
-
-                    <div class="grid md:grid-cols-3 gap-px bg-gray-200 border border-gray-200">
-                        <div class="bg-white p-10 hover:bg-gray-50 transition-colors group">
-                            <div class="w-12 h-12 bg-gray-100 rounded-sm flex items-center justify-center mb-6 group-hover:bg-corp-black group-hover:text-white transition-colors">
-                                <i class="fa-solid fa-magnifying-glass-chart text-xl"></i>
-                            </div>
-                            <h4 class="font-bold text-lg mb-3">1. Non-Invasive Audit</h4>
-                            <p class="text-sm text-gray-500 leading-relaxed">We utilize ephemeral access tokens to scan your CI/CD logs and infrastructure state without risking data integrity.</p>
-                        </div>
-
-                        <div class="bg-white p-10 hover:bg-gray-50 transition-colors group">
-                            <div class="w-12 h-12 bg-gray-100 rounded-sm flex items-center justify-center mb-6 group-hover:bg-corp-black group-hover:text-white transition-colors">
-                                <i class="fa-solid fa-code-branch text-xl"></i>
-                            </div>
-                            <h4 class="font-bold text-lg mb-3">2. The Bottleneck Report</h4>
-                            <p class="text-sm text-gray-500 leading-relaxed">Within the hour, you receive a precise technical PDF detailing exactly why the deployment failed and the specific code block responsible.</p>
-                        </div>
-
-                        <div class="bg-white p-10 hover:bg-gray-50 transition-colors group">
-                            <div class="w-12 h-12 bg-gray-100 rounded-sm flex items-center justify-center mb-6 group-hover:bg-corp-black group-hover:text-white transition-colors">
-                                <i class="fa-solid fa-hammer text-xl"></i>
-                            </div>
-                            <h4 class="font-bold text-lg mb-3">3. Surgical Fix</h4>
-                            <p class="text-sm text-gray-500 leading-relaxed">You can implement the fix yourself, or authorize our engineer to apply the patch immediately via screen-share.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="engineers" class="py-24 bg-corp-black text-white relative overflow-hidden">
-                <svg class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="0" y1="0" x2="100%" y2="100%" stroke="white" stroke-width="1" />
-                    <line x1="100%" y1="0" x2="0" y2="100%" stroke="white" stroke-width="1" />
-                </svg>
-
-                <div class="max-w-7xl mx-auto px-6 relative z-10">
-                    <div class="flex justify-between items-end mb-16">
-                        <div>
-                            <h2 class="text-4xl font-bold">Deploy Elite Talent.</h2>
-                            <p class="text-gray-400 mt-2">No juniors. No "learning on the job." Only L5+ engineers.</p>
-                        </div>
-                        <a href="#" class="hidden md:inline-block text-white border-b border-corp-red pb-1 text-sm uppercase tracking-widest hover:text-corp-red transition-colors">View All Profiles</a>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-corp-charcoal border border-white/10 p-6 rounded-sm hover:border-corp-red transition-colors">
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-gray-600 rounded-full overflow-hidden">
-                                        <img src="https://i.pravatar.cc/150?img=11" alt="Engineer" class="w-full h-full object-cover grayscale">
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold">Alex M.</h4>
-                                        <p class="text-xs text-corp-red font-mono uppercase">Principal SRE</p>
-                                    </div>
-                                </div>
-                                <div class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1">AVAILABLE</div>
-                            </div>
-                            <div class="space-y-3 font-mono text-xs text-gray-400">
-                                <div class="flex justify-between border-b border-gray-800 pb-2">
-                                    <span>Ex-Company:</span>
-                                    <span class="text-white">Netflix</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-800 pb-2">
-                                    <span>Specialty:</span>
-                                    <span class="text-white">Kubernetes / scaling</span>
-                                </div>
-                                <div class="flex justify-between pt-1">
-                                    <span>Certifications:</span>
-                                    <span class="text-white">AWS Pro, CKA</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-corp-charcoal border border-white/10 p-6 rounded-sm hover:border-corp-red transition-colors">
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-gray-600 rounded-full overflow-hidden">
-                                        <img src="https://i.pravatar.cc/150?img=5" alt="Engineer" class="w-full h-full object-cover grayscale">
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold">Sarah J.</h4>
-                                        <p class="text-xs text-corp-red font-mono uppercase">Cloud Architect</p>
-                                    </div>
-                                </div>
-                                <div class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1">BUSY</div>
-                            </div>
-                            <div class="space-y-3 font-mono text-xs text-gray-400">
-                                <div class="flex justify-between border-b border-gray-800 pb-2">
-                                    <span>Ex-Company:</span>
-                                    <span class="text-white">Stripe</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-800 pb-2">
-                                    <span>Specialty:</span>
-                                    <span class="text-white">Database Sharding</span>
-                                </div>
-                                <div class="flex justify-between pt-1">
-                                    <span>Certifications:</span>
-                                    <span class="text-white">GCP Fellow</span>
-                                </div>
-                            </div>
-                        </div>
-
-                         <div class="bg-corp-charcoal border border-white/10 p-6 rounded-sm hover:border-corp-red transition-colors">
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-gray-600 rounded-full overflow-hidden">
-                                        <img src="https://i.pravatar.cc/150?img=8" alt="Engineer" class="w-full h-full object-cover grayscale">
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold">David K.</h4>
-                                        <p class="text-xs text-corp-red font-mono uppercase">SecOps Lead</p>
-                                    </div>
-                                </div>
-                                <div class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1">AVAILABLE</div>
-                            </div>
-                            <div class="space-y-3 font-mono text-xs text-gray-400">
-                                <div class="flex justify-between border-b border-gray-800 pb-2">
-                                    <span>Ex-Company:</span>
-                                    <span class="text-white">Coinbase</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-800 pb-2">
-                                    <span>Specialty:</span>
-                                    <span class="text-white">Security / IAM</span>
-                                </div>
-                                <div class="flex justify-between pt-1">
-                                    <span>Certifications:</span>
-                                    <span class="text-white">CISSP, Azure Master</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="py-24 max-w-5xl mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold mb-4">Select Triage Level</h2>
-                    <p class="text-gray-600">Simple, transparent pricing for emergency resolution.</p>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="border border-gray-200 p-8 rounded-sm shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                        <h3 class="font-bold text-2xl mb-2">Rapid Audit</h3>
-                        <div class="text-4xl font-bold mb-6">$350<span class="text-lg text-gray-500 font-normal">/session</span></div>
-                        <ul class="space-y-4 mb-8 text-sm text-gray-600">
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-600"></i> 1-Hour Deep Dive</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-600"></i> Root Cause PDF Report</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-600"></i> Fix Strategy Outline</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-clock text-gray-400"></i> Response: &lt; 4 Hours</li>
-                        </ul>
-                        <button class="w-full py-4 border border-corp-black text-corp-black font-bold text-sm uppercase hover:bg-gray-50 transition-colors">Book Slot</button>
-                    </div>
-
-                    <div class="border-2 border-corp-red p-8 rounded-sm shadow-xl relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-corp-red text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest">Emergency</div>
-                        <h3 class="font-bold text-2xl mb-2">Hands-on Fix</h3>
-                        <div class="text-4xl font-bold mb-6">$800<span class="text-lg text-gray-500 font-normal">/session</span></div>
-                        <ul class="space-y-4 mb-8 text-sm text-gray-600">
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-corp-red"></i> <b>Immediate Intervention</b></li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-corp-red"></i> Engineer Implements Fix</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-corp-red"></i> Post-Mortem Video Call</li>
-                            <li class="flex items-center gap-3"><i class="fa-solid fa-bolt text-corp-red"></i> Response: &lt; 30 Mins</li>
-                        </ul>
-                        <button class="w-full py-4 bg-corp-red text-white font-bold text-sm uppercase hover:bg-red-700 transition-colors shadow-lg shadow-red-500/30">Deploy Engineer</button>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="bg-gray-50 border-t border-gray-200 pt-16 pb-8 text-sm">
-                <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 mb-12">
-                    <div class="col-span-1 md:col-span-2">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-6 h-6 bg-corp-black text-white flex items-center justify-center font-bold text-xs">P</div>
-                            <span class="font-bold">PROTOCOL</span>
-                        </div>
-                        <p class="text-gray-500 max-w-sm">The emergency layer for the modern internet. We fix the problems that stall your growth.</p>
-                    </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-8">
                     <div>
-                        <h4 class="font-bold mb-4">Service</h4>
-                        <ul class="space-y-2 text-gray-500">
-                            <li><a href="#" class="hover:text-black">Emergency Audit</a></li>
-                            <li><a href="#" class="hover:text-black">Architecture Review</a></li>
-                            <li><a href="#" class="hover:text-black">Team Retainer</a></li>
-                        </ul>
+                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-cloud text-brand-blue"></i> Le Principe</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            Le fichier Excel ne quitte <strong>jamais</strong> nos serveurs sécurisés. Le client envoie ses données via internet, nos serveurs (VM) effectuent les calculs complexes, et renvoient uniquement le résultat final.
+                        </p>
+                        <p class="text-slate-600 leading-relaxed mt-2">
+                            C'est le modèle "Coffre-fort distant". Même si le client se fait voler son PC, le voleur ne trouve rien car l'intelligence est dans le Cloud.
+                        </p>
                     </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-50/50 p-6 rounded-lg border border-green-100">
+                            <h5 class="font-bold text-green-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-shield-cat"></i> Avantages</h5>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Rien à voler chez le client</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Sécurité absolue (Black Box)</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Maintenance facile à distance</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Image très "Premium"</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50/50 p-6 rounded-lg border border-red-100">
+                            <h5 class="font-bold text-red-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Inconvénients</h5>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex gap-2"><span class="text-red-600">•</span> <strong>Internet obligatoire</strong> pour calculer</li>
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Coût récurrent (Abonnement serveur)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="bg-brand-blue text-white p-6 rounded-xl shadow-lg sticky top-24">
+                        <h5 class="font-serif text-xl mb-6 border-b border-blue-400 pb-2">Investissement</h5>
+                        
+                        <div class="mb-6">
+                            <p class="text-xs text-blue-200 uppercase font-bold mb-1">Serveurs (Récurrent)</p>
+                            <p class="text-2xl font-serif">70k - 180k <span class="text-sm font-sans font-normal opacity-80">FCFA / mois</span></p>
+                        </div>
+
+                        <div class="mb-6">
+                            <p class="text-xs text-blue-200 uppercase font-bold mb-1">Développement (One-shot)</p>
+                            <p class="text-xl font-serif">800k - 2.8M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
+                        </div>
+
+                        <div class="mt-4 bg-blue-800/50 p-3 rounded text-sm text-blue-100 italic">
+                            "Idéal pour les entreprises modernes avec une bonne connexion."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution3" class="mb-24 scroll-mt-24 page-break">
+            <div class="flex items-baseline gap-4 mb-6 border-b border-slate-200 pb-4">
+                <h2 class="font-serif text-4xl text-slate-900">03. VM Offline (Locale)</h2>
+                <span class="px-3 py-1 bg-slate-800 text-white text-xs font-bold uppercase rounded">Haute Sécurité / Banques</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-8">
                     <div>
-                        <h4 class="font-bold mb-4">Company</h4>
-                        <ul class="space-y-2 text-gray-500">
-                            <li><a href="#" class="hover:text-black">About DevSquad</a></li>
-                            <li><a href="#" class="hover:text-black">Careers (L5 Only)</a></li>
-                            <li><a href="#" class="hover:text-black">Legal / SLA</a></li>
-                        </ul>
+                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-server text-slate-600"></i> Le Principe</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            Nous installons une machine physique (serveur) dédiée <strong>dans les locaux du client</strong>. C'est exactement comme la solution Cloud, mais le nuage est privé, dans leur bureau.
+                        </p>
+                        <p class="text-slate-600 leading-relaxed mt-2">
+                            L'ordinateur de l'utilisateur se connecte au serveur par câble réseau local (LAN). Aucune donnée ne sort du bâtiment.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-50/50 p-6 rounded-lg border border-green-100">
+                            <h5 class="font-bold text-green-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-lock"></i> Avantages</h5>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Sécurité physique maximale</li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Fonctionne <strong>sans Internet</strong></li>
+                                <li class="flex gap-2"><span class="text-green-600">•</span> Contrôle total des données</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50/50 p-6 rounded-lg border border-red-100">
+                            <h5 class="font-bold text-red-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-money-bill-wave"></i> Inconvénients</h5>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Installation lourde et complexe</li>
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Coûts élevés (Matériel + Déplacement)</li>
+                                <li class="flex gap-2"><span class="text-red-600">•</span> Maintenance physique requise</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="max-w-7xl mx-auto px-6 border-t border-gray-200 pt-8 flex justify-between text-gray-400 text-xs">
-                    <span>&copy; 2024 DevSquad Inc. All Systems Operational.</span>
-                    <span>San Francisco, CA</span>
+
+                <div class="lg:col-span-1">
+                    <div class="bg-slate-800 text-slate-200 p-6 rounded-xl shadow-lg sticky top-24">
+                        <h5 class="font-serif text-xl mb-6 border-b border-slate-600 pb-2 text-white">Investissement Lourd</h5>
+                        
+                        <div class="mb-4">
+                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Installation (Matériel)</p>
+                            <p class="text-xl font-serif text-white">300k - 1M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Développement</p>
+                            <p class="text-xl font-serif text-white">800k - 3.3M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
+                        </div>
+
+                         <div class="mb-4">
+                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Maintenance / mois</p>
+                            <p class="text-xl font-serif text-white">30k - 150k <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
+                        </div>
+
+                        <div class="mt-4 bg-slate-700 p-3 rounded text-sm text-slate-300 italic">
+                            "Réservé aux banques et environnements réglementés."
+                        </div>
+                    </div>
                 </div>
-            </footer>
+            </div>
+        </section>
 
-            <script>
-                // 1. Terminal Simulation Script
-                const terminalOutput = document.getElementById('scan-output');
-                const errorAlert = document.getElementById('error-alert');
-                
-                const logs = [
-                    { text: "Verifying IAM permissions... [OK]", color: "text-green-500", delay: 800 },
-                    { text: "Checking Load Balancer latency... [OK]", color: "text-green-500", delay: 1600 },
-                    { text: "Inspecting Docker container health...", color: "text-white", delay: 2400 },
-                    { text: "WARNING: High memory usage in pod-x92-alpha", color: "text-yellow-500", delay: 3000 },
-                    { text: "Tracing dependency failure in staging...", color: "text-white", delay: 3800 },
-                    { text: "CRITICAL ERROR: Circular dependency found in package.json line 42", color: "text-red-500", delay: 4800 },
-                    { text: "Deployment halted. Error code: 0x892B", color: "text-red-500", delay: 5000 },
-                    { text: "Recommending patch strategy...", color: "text-blue-400", delay: 5800 }
-                ];
+        <section id="solution4" class="mb-24 scroll-mt-24 page-break">
+            <div class="flex items-baseline gap-4 mb-6 border-b border-brand-warning pb-4">
+                <h2 class="font-serif text-4xl text-slate-900">04. VM User (Locale)</h2>
+                <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold uppercase rounded">⚠️ Fausse bonne idée</span>
+            </div>
 
-                let logIndex = 0;
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-8">
+                    <div>
+                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-laptop-code text-brand-warning"></i> Principe</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            TSS fournit une machine virtuelle (VirtualBox / VMware) installée directement sur le PC du client. Excel tourne dans cette boîte isolée. L'utilisateur travaille via une interface locale sans internet.
+                        </p>
+                        <p class="text-slate-600 leading-relaxed mt-2 font-medium">
+                            👉 L’idée marketing : "Le moteur est isolé, donc protégé".
+                        </p>
+                    </div>
 
-                function runTerminal() {
-                    if (logIndex < logs.length) {
-                        const log = logs[logIndex];
-                        setTimeout(() => {
-                            const line = document.createElement('div');
-                            line.className = `mb-1 ${log.color}`;
-                            line.innerHTML = log.text;
-                            terminalOutput.appendChild(line);
-                            
-                            // Auto scroll to bottom
-                            const terminalContainer = document.getElementById('terminal-content');
-                            terminalContainer.scrollTop = terminalContainer.scrollHeight;
+                    <div class="bg-amber-50 border-l-4 border-brand-warning p-6 rounded-r-lg">
+                        <h5 class="font-bold text-amber-900 mb-2 text-lg">❌ Problème fondamental : "Illusion de sécurité"</h5>
+                        <p class="text-amber-900/80 mb-4">
+                            La VM est sur la machine du client. Le client est administrateur de sa machine.
+                        </p>
+                        <ul class="space-y-2 text-sm text-amber-900/90 font-medium">
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-1"></i> Il peut faire des "Snapshots" (photos de la mémoire).</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-1"></i> Il peut copier les disques virtuels.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-1"></i> Un utilisateur motivé peut extraire Excel et analyser le moteur.</li>
+                        </ul>
+                    </div>
 
-                            // Trigger alert on error
-                            if (log.text.includes("CRITICAL")) {
-                                errorAlert.classList.remove('hidden');
-                            }
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-100 p-5 rounded-lg border border-slate-200">
+                            <h5 class="font-bold text-slate-700 mb-2 text-sm">✅ Avantages apparents</h5>
+                            <ul class="space-y-1 text-sm text-slate-600">
+                                <li>• 100% Offline</li>
+                                <li>• Pas de serveur distant</li>
+                                <li>• Facile à déployer techniquement</li>
+                                <li>• Rassure certains clients "tech"</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-100 p-5 rounded-lg border border-slate-200">
+                            <h5 class="font-bold text-slate-700 mb-2 text-sm">⚖️ Verdict Honnête</h5>
+                            <p class="text-sm text-slate-600 italic">
+                                "Elle complique la vie de l’utilisateur honnête plus qu’elle ne bloque un voleur motivé. À éviter sauf cas très spécifique."
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                            logIndex++;
-                            runTerminal();
-                        }, log.delay - (logIndex * 100)); // Accelerate slightly
-                    }
-                }
+                <div class="lg:col-span-1">
+                    <div class="bg-white border-2 border-brand-warning/20 p-6 rounded-xl shadow-sm sticky top-24">
+                        <h5 class="font-serif text-xl text-slate-900 mb-4 pb-2 border-b border-slate-100">Coûts</h5>
+                        
+                        <div class="mb-4">
+                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Développement</p>
+                            <p class="text-xl font-serif text-slate-900">300k - 1.3M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
+                        </div>
 
-                // Start terminal when scrolled into view
-                ScrollTrigger.create({
-                    trigger: ".terminal-window",
-                    start: "top 75%",
-                    onEnter: () => runTerminal()
-                });
+                        <div class="mb-4">
+                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Support / Bugs</p>
+                            <p class="text-lg font-serif text-slate-900">Moyen</p>
+                            <p class="text-xs text-slate-500">Problèmes de compatibilité fréquents.</p>
+                        </div>
 
-                // 2. GSAP Content Animations
-                gsap.from("h2", {
-                    y: 30,
-                    opacity: 0,
-                    duration: 1,
-                    stagger: 0.2,
-                    scrollTrigger: {
-                        trigger: "h2",
-                        start: "top 90%"
-                    }
-                });
-                
-            </script>
-        </body>
-        </html>
-    </template>
+                        <div class="mt-4 bg-amber-50 p-3 rounded text-sm text-amber-800 italic border border-amber-100">
+                            "Niveau réel de sécurité : Moyen (🟡). Pas beaucoup plus sûr que la solution 1."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <script>
-        function loadDesign(designName, btn) {
-            const loader = document.querySelector('.loader');
-            const iframe = document.getElementById('viewport');
+        <section id="conclusion" class="mb-20 pt-10 border-t border-slate-200">
+            <h2 class="font-serif text-3xl text-slate-900 mb-8 text-center">Tableau Comparatif Final</h2>
             
-            // 1. Update Buttons
-            document.querySelectorAll('.switch-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
+            <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600 min-w-[900px]">
+                    <thead class="bg-slate-50 text-slate-900 font-bold uppercase text-xs tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4">Critère</th>
+                            <th class="px-6 py-4 w-1/5">1. Offline (Confusion)</th>
+                            <th class="px-6 py-4 bg-blue-50 text-blue-900 w-1/5">2. VM Online (Cloud)</th>
+                            <th class="px-6 py-4 w-1/5">3. VM Offline (Local)</th>
+                            <th class="px-6 py-4 bg-amber-50 text-amber-900 w-1/5 border-b-2 border-brand-warning">4. VM User (Local)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Sans Internet ?</td>
+                            <td class="px-6 py-4 text-green-600 font-medium">✅ Oui</td>
+                            <td class="px-6 py-4 bg-blue-50/30 text-red-600 font-medium">❌ Non (besoin connexion)</td>
+                            <td class="px-6 py-4 text-green-600 font-medium">✅ Oui</td>
+                            <td class="px-6 py-4 bg-amber-50/30 text-green-600 font-medium">✅ Oui</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Sécurité Moteur</td>
+                            <td class="px-6 py-4 text-brand-gold">🟡 Forte (95%)</td>
+                            <td class="px-6 py-4 bg-blue-50/30 text-green-600 font-bold">✅ Maximale</td>
+                            <td class="px-6 py-4 text-green-600 font-bold">🟢 Très Forte</td>
+                            <td class="px-6 py-4 bg-amber-50/30 text-brand-gold font-bold">🟡 Moyenne</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Fichier Source livré ?</td>
+                            <td class="px-6 py-4">Oui (Obfusqué)</td>
+                            <td class="px-6 py-4 bg-blue-50/30 font-semibold">❌ Jamais</td>
+                            <td class="px-6 py-4 font-semibold">❌ Jamais</td>
+                            <td class="px-6 py-4 bg-amber-50/30 text-brand-warning font-semibold">⚠️ Dans la VM</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Simplicité Install</td>
+                            <td class="px-6 py-4 text-green-600">✅ Très simple</td>
+                            <td class="px-6 py-4 bg-blue-50/30 text-brand-gold">🟡 Moyenne</td>
+                            <td class="px-6 py-4 text-red-600">❌ Complexe</td>
+                            <td class="px-6 py-4 bg-amber-50/30 text-brand-gold">🟡 Moyenne</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Coût Initial</td>
+                            <td class="px-6 py-4 text-green-600">💰 Faible</td>
+                            <td class="px-6 py-4 bg-blue-50/30 text-brand-gold">💰💰 Moyen</td>
+                            <td class="px-6 py-4 text-red-600">💰💰💰 Élevé</td>
+                            <td class="px-6 py-4 bg-amber-50/30 text-brand-gold">💰💰 Moyen</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Coût Mensuel</td>
+                            <td class="px-6 py-4 text-green-600">💸 Quasi nul</td>
+                            <td class="px-6 py-4 bg-blue-50/30 text-brand-gold">💸💸 Moyen</td>
+                            <td class="px-6 py-4 text-red-600">💸💸 Élevé (Maint.)</td>
+                            <td class="px-6 py-4 bg-amber-50/30">💸 Faible</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 font-bold text-slate-900">Contrôle Client</td>
+                            <td class="px-6 py-4">Total</td>
+                            <td class="px-6 py-4 bg-blue-50/30">Nul (Blackbox)</td>
+                            <td class="px-6 py-4">Physique</td>
+                            <td class="px-6 py-4 bg-amber-50/30 text-red-600">Admin (Risque)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-            // 2. Fade Out
-            iframe.style.opacity = '0';
-            loader.style.display = 'block';
+        <section class="bg-slate-900 text-white p-10 md:p-14 rounded-2xl text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-12 opacity-5"><i class="fa-solid fa-quote-right text-9xl"></i></div>
+            
+            <h3 class="font-serif text-2xl md:text-3xl mb-6 relative z-10">Le Verdict de l'Expert</h3>
+            <div class="max-w-3xl mx-auto text-lg leading-relaxed text-slate-300 relative z-10 space-y-4">
+                <p>
+                    "Si le client souhaite une solution <strong>Low Cost</strong> et accepte un risque minime de sécurité, la <strong>Solution 1 (Offline)</strong> reste la plus pragmatique."
+                </p>
+                <p>
+                    "En revanche, pour une image <strong>Premium</strong> et une <strong>Sécurité Absolue</strong> (si Internet le permet), la <strong>Solution 2 (VM Online)</strong> est l'investissement roi."
+                </p>
+            </div>
+            
+            <div class="mt-10 flex flex-col md:flex-row gap-4 justify-center relative z-10 no-print">
+                <a href="mailto:contact@atobouh.com" class="bg-brand-blue hover:bg-blue-600 text-white px-8 py-3 rounded font-medium transition-colors">
+                    Discuter du choix
+                </a>
+            </div>
+        </section>
 
-            setTimeout(() => {
-                // 3. Get Template Content
-                const template = document.getElementById(`template-${designName}`);
-                
-                // 4. Inject into Iframe
-                // We use a small timeout to allow the fade-out to register visually
-                iframe.srcdoc = template.innerHTML;
-                
-                // 5. Fade In once loaded
-                iframe.onload = () => {
-                    loader.style.display = 'none';
-                    iframe.style.opacity = '1';
-                };
-            }, 300);
-        }
+    </main>
 
-        // Initialize with ECHO
-        window.addEventListener('DOMContentLoaded', () => {
-            loadDesign('echo', null);
-        });
-    </script>
+    <footer class="bg-slate-100 border-t border-slate-200 py-10 text-center no-print">
+        <p class="text-slate-500 text-sm">© 2024 Atobouh Ariel - Document Confidentiel - Ne pas diffuser sans autorisation.</p>
+    </footer>
+
 </body>
-
 </html>
