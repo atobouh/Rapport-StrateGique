@@ -122,6 +122,29 @@
         .governance-status-banner.valid { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
         .governance-status-banner.info { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
         .governance-status-banner.invalid { background: #fef2f2; border: 1px solid #fecaca; color: #781c1c; }
+
+        /* PERSISTENT DOCUMENTATION SLIDE-OVER PANEL STYLE */
+        .drawer-backdrop {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+            z-index: 1000; display: none; opacity: 0; transition: opacity 0.25s ease;
+        }
+        .report-drawer {
+            position: fixed; top: 0; right: -550px; width: 520px; height: 100vh;
+            background: #ffffff; border-left: 1px solid var(--slate-200); box-shadow: -4px 0 24px rgba(15, 23, 42, 0.15);
+            z-index: 1001; transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+        }
+        .drawer-header {
+            padding: 1.5rem; border-bottom: 1px solid var(--slate-200);
+            display: flex; justify-content: space-between; align-items: center; background: var(--slate-50);
+        }
+        .drawer-content { padding: 2rem; overflow-y: auto; flex-grow: 1; line-height: 1.6; }
+        .drawer-close { background: none; border: none; cursor: pointer; color: var(--slate-600); }
+        .doc-section { margin-bottom: 2rem; }
+        .doc-heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--slate-900); display: flex; align-items: center; gap: 8px; }
+        .doc-text { font-size: 0.88rem; color: var(--slate-700); margin-bottom: 1rem; text-align: justify; }
+        .doc-block { background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -131,14 +154,21 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Sovereign Ledger v4.0
         </div>
-        <div class="view-switcher-tabs">
-            <button class="tab-btn active" onclick="switchWorkspace('internal')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect></svg>
-                Treasury Command Terminal
-            </button>
-            <button class="tab-btn" onclick="switchWorkspace('public')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
-                Public Audit Ledger
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="view-switcher-tabs">
+                <button class="tab-btn active" onclick="switchWorkspace('internal')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect></svg>
+                    Treasury Command Terminal
+                </button>
+                <button class="tab-btn" onclick="switchWorkspace('public')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+                    Public Audit Ledger
+                </button>
+            </div>
+            
+            <button class="tab-btn" style="background: var(--brand-blue); color: #ffffff; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);" onclick="toggleBlueprintDrawer(true)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Architecture Blueprint
             </button>
         </div>
     </header>
@@ -206,6 +236,54 @@
         </div>
     </div>
 
+    <div class="drawer-backdrop" id="blueprintBackdrop" onclick="blueprintDrawer(false)"></div>
+    <div class="report-drawer" id="blueprintDrawer">
+        <div class="drawer-header">
+            <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; text-transform: uppercase; color: var(--slate-900);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-blue)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                System Architecture Specification
+            </div>
+            <button class="drawer-close" onclick="toggleBlueprintDrawer(false)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="drawer-content">
+            <div class="doc-section">
+                <div class="doc-heading">1. How to Present this System</div>
+                <div class="doc-text">
+                    When pitching this framework to ministries or board members, pitch it as an <strong>institutional upgrade to banking security</strong> rather than an independent or wild alternative ecosystem. It operates completely alongside legacy central banking structures.
+                </div>
+            </div>
+
+            <div class="doc-section">
+                <div class="doc-heading">2. The 3-Tier Enterprise Setup</div>
+                <div class="doc-text">To prevent scalability bugs or data fees, the ledger splits operational commands across three standalone runtime layers:</div>
+                
+                <div class="doc-block">
+                    <strong style="color:var(--brand-blue)">Tier 1: Application Layer</strong><br>
+                    Handles the dashboard screens using React/Next.js UI scripts. State parameters sign initialization tokens via private cryptographic hardware nodes.
+                </div>
+                <div class="doc-block" style="margin-top: 8px;">
+                    <strong style="color:var(--emerald-700)">Tier 2: Integration Gateway</strong><br>
+                    Translates blockchain calls to interbank protocols. Syncs with centralized treasury platforms via secure ISO 20022 compliance web hooks or regional settlement databases.
+                </div>
+                <div class="doc-block" style="margin-top: 8px;">
+                    <strong style="color:var(--slate-900)">Tier 3: Core Ledger Layer</strong><br>
+                    A private, permissioned corporate consensus chain (Hyperledger Fabric or ConsenSys Quorum). Retains zero token maintenance fees and limits execution power strictly to approved institutional peers.
+                </div>
+            </div>
+
+            <div class="doc-section">
+                <div class="doc-heading">3. The Asset Lifespan Loop</div>
+                <div class="doc-text">
+                    <strong>Phase 1 — Lock-and-Mint:</strong> The state submits requests inside the terminal panel. The Central Bank oracle matches physical liquid assets, then cryptographically signs matching token creation on-chain.<br><br>
+                    <strong>Phase 2 — Smart Pipeline:</strong> Funds move through locked escrow pipelines tracking milestones automatically. If a rogue regional node tries to modify database cells out of order, decentralized consensus nodes catch the break and drop execution instantly.<br><br>
+                    <strong>Phase 3 — Clearance Burn:</strong> Approved builders receive project payout keys. The partner clearing bank processes the token, destroys it permanently on the ledger, and routes cash straight to standard corporate checking rows.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const globalLedgerState = [
             {
@@ -266,7 +344,9 @@
         let selectedProjectId = "p-1";
 
         function switchWorkspace(view) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                if (idx < 2) btn.classList.remove('active');
+            });
             document.querySelectorAll('.workspace-view').forEach(v => v.classList.remove('active'));
             
             if(view === 'internal') {
@@ -276,6 +356,21 @@
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('public-view').classList.add('active');
                 renderPublicView();
+            }
+        }
+
+        /* TOGGLE EXPLANATION ARCHITECTURE BLUEPRINT DRAWER ACTIONS */
+        function toggleBlueprintDrawer(show) {
+            const backdrop = document.getElementById('blueprintBackdrop');
+            const drawer = document.getElementById('blueprintDrawer');
+            if (show) {
+                backdrop.style.display = 'block';
+                setTimeout(() => { backdrop.style.opacity = '1'; }, 10);
+                drawer.style.right = '0px';
+            } else {
+                backdrop.style.opacity = '0';
+                drawer.style.right = '-550px';
+                setTimeout(() => { backdrop.style.display = 'none'; }, 250);
             }
         }
 
