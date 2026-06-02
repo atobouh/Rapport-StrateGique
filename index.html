@@ -1,460 +1,416 @@
 <!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapport Stratégique : Protection Excel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    },
-                    colors: {
-                        slate: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        },
-                        brand: {
-                            blue: '#2563eb',
-                            gold: '#b45309',
-                            warning: '#d97706', // Ajout pour l'option 4
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Sovereign Ledger — Fiat-to-Ledger Liquidity Architecture</title>
     <style>
-        /* Print Styles for PDF export */
-        @media print {
-            .no-print { display: none; }
-            body { background: white; color: black; }
-            .shadow-lg, .shadow-sm { box-shadow: none !important; }
-            .bg-slate-50 { background: white !important; }
-            a { text-decoration: none; color: black; }
-            .page-break { page-break-before: always; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-900: #0f172a;
+            
+            --brand-blue: #0284c7;
+            --brand-blue-deep: #0369a1;
+            --emerald-600: #16a34a;
+            --emerald-700: #15803d;
+            --amber-500: #f59e0b;
+            --amber-700: #b45309;
+            --rose-600: #dc2626;
+            
+            --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
-        .prose p { margin-bottom: 1rem; line-height: 1.6; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-sans); letter-spacing: -0.015em; }
+        body { background-color: #fcfcfd; color: var(--slate-900); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+        header {
+            background: #ffffff; border-bottom: 1px solid var(--slate-200); padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center; height: 70px;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .brand-logo { display: flex; align-items: center; gap: 0.65rem; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+        .view-switcher-tabs { display: flex; background: var(--slate-100); padding: 4px; border-radius: 8px; border: 1px solid var(--slate-200); }
+        
+        .tab-btn {
+            padding: 0.5rem 1.25rem; font-size: 0.85rem; font-weight: 600; color: var(--slate-600);
+            border: none; background: transparent; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn.active { background: #ffffff; color: var(--slate-900); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+        .workspace-view { display: none; min-height: calc(100vh - 70px); }
+        .workspace-view.active { display: grid; }
+
+        /* INTERNAL VIEW */
+        .internal-grid { grid-template-columns: 460px 1fr; }
+        .panel-content { padding: 3rem 2.5rem; }
+        .border-right { border-right: 1px solid var(--slate-200); background: #ffffff; }
+
+        .section-headline { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .section-desc { font-size: 0.85rem; color: var(--slate-600); margin-bottom: 2.5rem; line-height: 1.5; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--slate-700); margin-bottom: 0.5rem; }
+        .form-select, .form-input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--slate-200); border-radius: 6px; font-size: 0.9rem; background-color: var(--slate-50); }
+        
+        .btn-submit { background: var(--slate-900); color: #ffffff; border: none; width: 100%; padding: 0.9rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-submit:hover { background: var(--brand-blue-deep); }
+
+        .gateway-card { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.25rem; border-radius: 8px; margin-top: 2rem; font-size: 0.8rem; color: var(--emerald-700); line-height: 1.5; }
+        .matrix-item { background: #ffffff; border: 1px solid var(--slate-200); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.25rem; }
+
+        /* PUBLIC VIEW */
+        .public-grid { grid-template-columns: 350px 1fr; }
+        .project-pane { border-right: 1px solid var(--slate-200); background: #ffffff; }
+        .pane-header { padding: 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); border-bottom: 1px solid var(--slate-100); background: var(--slate-50); }
+        .procurement-row { padding: 1.5rem; border-bottom: 1px solid var(--slate-100); cursor: pointer; }
+        .procurement-row.active { background: #f0f9ff; border-left: 3px solid var(--brand-blue); }
+
+        /* MAP COMPONENTS */
+        .visual-map-container { background: #ffffff; border: 1px solid var(--slate-200); border-radius: 12px; padding: 2rem; margin-bottom: 3rem; }
+        .map-nodes-wrapper { display: flex; align-items: center; justify-content: space-between; }
+        .map-node { background: var(--slate-50); border: 2px solid var(--slate-300); border-radius: 8px; padding: 1rem; width: 210px; text-align: center; }
+        
+        .map-node.active-clear { border-color: var(--emerald-600); background: #f0fdf4; }
+        .map-node.active-pending { border-color: var(--brand-blue); background: #f0f9ff; }
+        
+        .map-connector-line { flex-grow: 1; height: 2px; background: var(--slate-300); margin: 0 -5px; }
+        .map-connector-line.passed { background: var(--emerald-600); }
+
+        .map-node-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); margin-bottom: 0.25rem; }
+        .map-node-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: var(--slate-900); }
+        .map-node-status { font-size: 0.65rem; font-weight: 600; margin-top: 0.5rem; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+        
+        .status-clear { background: #dcfce7; color: var(--emerald-700); }
+        .status-pending { background: #e0f2fe; color: var(--brand-blue-deep); }
+
+        /* TIMELINE */
+        .provenance-timeline { position: relative; max-width: 100%; margin-top: 2rem; }
+        .provenance-timeline::before { content: ''; position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: var(--slate-200); }
+        
+        .tx-block-node { position: relative; padding-left: 4.5rem; margin-bottom: 2.5rem; }
+        .node-icon-anchor { position: absolute; left: 11px; top: 4px; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 2px solid var(--slate-300); display: flex; align-items: center; justify-content: center; z-index: 2; font-weight: bold; font-size: 0.8rem; }
+        
+        .tx-block-node.success .node-icon-anchor { border-color: var(--emerald-600); background: #ecfdf5; color: var(--emerald-700); }
+        .tx-block-node.info .node-icon-anchor { border-color: var(--brand-blue); background: #f0f9ff; color: var(--brand-blue-deep); }
+        .tx-block-node.tampered .node-icon-anchor { border-color: var(--rose-600); background: #fef2f2; color: #b91c1c; }
+
+        .tx-card { background: #ffffff; border: 1px solid var(--slate-200); border-radius: 10px; padding: 1.5rem; }
+        .tx-card.info-border { border-color: var(--brand-blue); background: #f8fafc; }
+        .tx-card.alert-border { border-color: var(--rose-300); background: #fffbfa; }
+
+        .tx-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-100); padding-bottom: 0.75rem; margin-bottom: 1rem; }
+        .tx-value { font-family: var(--font-mono); font-weight: 600; font-size: 1rem; }
+        .tx-value small { font-size: 0.7rem; color: var(--slate-600); font-family: var(--font-sans); margin-right: 8px; text-transform: uppercase; }
+        
+        .tx-grid-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; font-size: 0.8rem; margin-bottom: 1rem; }
+        .label-text { color: var(--slate-600); font-size: 0.75rem; margin-bottom: 0.15rem; }
+        .value-text { font-weight: 600; }
+
+        .crypto-hash-strip { font-family: var(--font-mono); background: var(--slate-50); border: 1px solid var(--slate-200); padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: var(--slate-600); display: flex; justify-content: space-between; }
+        .tx-card.alert-border .crypto-hash-strip { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+        
+        .governance-status-banner { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.8rem; line-height: 1.45; }
+        .governance-status-banner.valid { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+        .governance-status-banner.info { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
+        .governance-status-banner.invalid { background: #fef2f2; border: 1px solid #fecaca; color: #781c1c; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body>
 
-    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 no-print">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="font-serif font-bold text-xl text-slate-900">Atobouh Ariel <span class="text-slate-400 font-sans text-sm font-normal ml-2">| Rapport Confidentiel</span></div>
-            <div class="hidden md:flex gap-6 text-sm font-medium text-slate-600">
-                <a href="#intro" class="hover:text-brand-blue transition-colors">Contexte</a>
-                <a href="#solution1" class="hover:text-brand-blue transition-colors">1. Offline</a>
-                <a href="#solution2" class="hover:text-brand-blue transition-colors">2. VM Online</a>
-                <a href="#solution3" class="hover:text-brand-blue transition-colors">3. VM Offline</a>
-                <a href="#solution4" class="text-brand-warning font-bold hover:text-orange-700 transition-colors">4. VM User</a>
-                <a href="#conclusion" class="hover:text-brand-blue transition-colors">Comparatif</a>
-            </div>
-            <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded text-xs font-semibold hover:bg-slate-800 transition">
-                <i class="fa-solid fa-file-pdf mr-2"></i>PDF
+    <header>
+        <div class="brand-logo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Sovereign Ledger v4.0
+        </div>
+        <div class="view-switcher-tabs">
+            <button class="tab-btn active" onclick="switchWorkspace('internal')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect></svg>
+                Treasury Command Terminal
+            </button>
+            <button class="tab-btn" onclick="switchWorkspace('public')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+                Public Audit Ledger
             </button>
         </div>
-    </nav>
+    </header>
 
-    <main class="max-w-6xl mx-auto px-6 pt-32 pb-24">
-
-        <header id="intro" class="mb-20 text-center border-b border-slate-200 pb-12">
-            <div class="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-widest mb-4 rounded-full">Analyse Technique & Financière</div>
-            <h1 class="font-serif text-5xl md:text-6xl text-slate-900 mb-6 leading-tight">
-                Stratégies de Protection<br>Excel & Propriété Intellectuelle
-            </h1>
-            <p class="text-xl text-slate-500 max-w-2xl mx-auto font-light italic">
-                "Comment sécuriser notre savoir-faire tout en restant opérationnel ?"
-            </p>
-        </header>
-
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-24 items-center">
-            <div class="prose">
-                <h3 class="font-serif text-2xl mb-4 text-slate-900">L'enjeu de la décision</h3>
-                <p>
-                    Il n’existe pas de solution magique qui soit à la fois totalement hors ligne, inviolable et bon marché. Chaque approche est un compromis technique.
-                </p>
-                <p>
-                    Ce rapport détaille <strong>quatre architectures</strong> distinctes pour protéger vos fichiers Excel, allant de la méthode "flexible" (Offline) à la méthode "coffre-fort" (Machine Virtuelle).
-                </p>
-            </div>
-            <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-brand-blue"></div>
-                <h4 class="font-bold text-sm uppercase tracking-wider text-slate-400 mb-4">Critères d'analyse</h4>
-                <ul class="space-y-3">
-                    <li class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-brand-blue"><i class="fa-solid fa-shield-halved text-sm"></i></span>
-                        <span class="font-medium text-slate-700">Sécurité du code source</span>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600"><i class="fa-solid fa-wifi text-sm"></i></span>
-                        <span class="font-medium text-slate-700">Dépendance à Internet</span>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="fa-solid fa-coins text-sm"></i></span>
-                        <span class="font-medium text-slate-700">Coût d'infrastructure</span>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
-        <section id="solution1" class="mb-24 scroll-mt-24">
-            <div class="flex items-baseline gap-4 mb-6 border-b border-slate-200 pb-4">
-                <h2 class="font-serif text-4xl text-slate-900">01. Offline (Confusion)</h2>
-                <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase rounded">La Référence Actuelle</span>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div class="lg:col-span-2 space-y-8">
-                    <div>
-                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-regular fa-lightbulb text-brand-blue"></i> Le Principe</h4>
-                        <p class="text-slate-600 leading-relaxed">
-                            L’utilisateur installe le logiciel directement sur son PC. Il utilise Excel normalement. Cependant, les fichiers sont <strong>fortement "marqués" (watermark)</strong> et le code interne est rendu volontairement confus.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-2">
-                            Si quelqu’un copie le fichier, il obtient un document fonctionnel uniquement sur sa machine, mais illisible et inutilisable pour un concurrent ou un tiers.
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-green-50/50 p-6 rounded-lg border border-green-100">
-                            <h5 class="font-bold text-green-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-check"></i> Avantages</h5>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2"><span class="text-green-600">•</span> 100% Offline (Zéro internet requis)</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Pas de serveur à gérer</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Coût très faible</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Suffisant pour 95% des abus</li>
-                            </ul>
-                        </div>
-                        <div class="bg-red-50/50 p-6 rounded-lg border border-red-100">
-                            <h5 class="font-bold text-red-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-xmark"></i> Limites</h5>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Pas mathématiquement inviolable</li>
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Le fichier source est "chez le client"</li>
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Un expert motivé peut le casser</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1">
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-24">
-                        <h5 class="font-serif text-xl text-slate-900 mb-4">Profil Idéal</h5>
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">PME</span>
-                            <span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">Zones Instables</span>
-                            <span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">Budget Limité</span>
-                        </div>
-                        <div class="border-t border-slate-100 pt-4">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Coût Estimé</p>
-                            <p class="text-2xl font-serif text-slate-900">Faible</p>
-                            <p class="text-sm text-slate-500 mt-1">Coût unique de développement logiciel uniquement.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="solution2" class="mb-24 scroll-mt-24">
-            <div class="flex items-baseline gap-4 mb-6 border-b border-slate-200 pb-4">
-                <h2 class="font-serif text-4xl text-slate-900">02. VM Online (Cloud)</h2>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded">Sécurité Maximale</span>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div class="lg:col-span-2 space-y-8">
-                    <div>
-                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-cloud text-brand-blue"></i> Le Principe</h4>
-                        <p class="text-slate-600 leading-relaxed">
-                            Le fichier Excel ne quitte <strong>jamais</strong> nos serveurs sécurisés. Le client envoie ses données via internet, nos serveurs (VM) effectuent les calculs complexes, et renvoient uniquement le résultat final.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-2">
-                            C'est le modèle "Coffre-fort distant". Même si le client se fait voler son PC, le voleur ne trouve rien car l'intelligence est dans le Cloud.
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-green-50/50 p-6 rounded-lg border border-green-100">
-                            <h5 class="font-bold text-green-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-shield-cat"></i> Avantages</h5>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Rien à voler chez le client</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Sécurité absolue (Black Box)</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Maintenance facile à distance</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Image très "Premium"</li>
-                            </ul>
-                        </div>
-                        <div class="bg-red-50/50 p-6 rounded-lg border border-red-100">
-                            <h5 class="font-bold text-red-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Inconvénients</h5>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2"><span class="text-red-600">•</span> <strong>Internet obligatoire</strong> pour calculer</li>
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Coût récurrent (Abonnement serveur)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1">
-                    <div class="bg-brand-blue text-white p-6 rounded-xl shadow-lg sticky top-24">
-                        <h5 class="font-serif text-xl mb-6 border-b border-blue-400 pb-2">Investissement</h5>
-                        
-                        <div class="mb-6">
-                            <p class="text-xs text-blue-200 uppercase font-bold mb-1">Serveurs (Récurrent)</p>
-                            <p class="text-2xl font-serif">70k - 180k <span class="text-sm font-sans font-normal opacity-80">FCFA / mois</span></p>
-                        </div>
-
-                        <div class="mb-6">
-                            <p class="text-xs text-blue-200 uppercase font-bold mb-1">Développement (One-shot)</p>
-                            <p class="text-xl font-serif">800k - 2.8M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
-                        </div>
-
-                        <div class="mt-4 bg-blue-800/50 p-3 rounded text-sm text-blue-100 italic">
-                            "Idéal pour les entreprises modernes avec une bonne connexion."
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="solution3" class="mb-24 scroll-mt-24 page-break">
-            <div class="flex items-baseline gap-4 mb-6 border-b border-slate-200 pb-4">
-                <h2 class="font-serif text-4xl text-slate-900">03. VM Offline (Locale)</h2>
-                <span class="px-3 py-1 bg-slate-800 text-white text-xs font-bold uppercase rounded">Haute Sécurité / Banques</span>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div class="lg:col-span-2 space-y-8">
-                    <div>
-                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-server text-slate-600"></i> Le Principe</h4>
-                        <p class="text-slate-600 leading-relaxed">
-                            Nous installons une machine physique (serveur) dédiée <strong>dans les locaux du client</strong>. C'est exactement comme la solution Cloud, mais le nuage est privé, dans leur bureau.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-2">
-                            L'ordinateur de l'utilisateur se connecte au serveur par câble réseau local (LAN). Aucune donnée ne sort du bâtiment.
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-green-50/50 p-6 rounded-lg border border-green-100">
-                            <h5 class="font-bold text-green-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-lock"></i> Avantages</h5>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Sécurité physique maximale</li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Fonctionne <strong>sans Internet</strong></li>
-                                <li class="flex gap-2"><span class="text-green-600">•</span> Contrôle total des données</li>
-                            </ul>
-                        </div>
-                        <div class="bg-red-50/50 p-6 rounded-lg border border-red-100">
-                            <h5 class="font-bold text-red-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-money-bill-wave"></i> Inconvénients</h5>
-                            <ul class="space-y-2 text-sm text-slate-700">
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Installation lourde et complexe</li>
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Coûts élevés (Matériel + Déplacement)</li>
-                                <li class="flex gap-2"><span class="text-red-600">•</span> Maintenance physique requise</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1">
-                    <div class="bg-slate-800 text-slate-200 p-6 rounded-xl shadow-lg sticky top-24">
-                        <h5 class="font-serif text-xl mb-6 border-b border-slate-600 pb-2 text-white">Investissement Lourd</h5>
-                        
-                        <div class="mb-4">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Installation (Matériel)</p>
-                            <p class="text-xl font-serif text-white">300k - 1M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
-                        </div>
-
-                        <div class="mb-4">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Développement</p>
-                            <p class="text-xl font-serif text-white">800k - 3.3M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
-                        </div>
-
-                         <div class="mb-4">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Maintenance / mois</p>
-                            <p class="text-xl font-serif text-white">30k - 150k <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
-                        </div>
-
-                        <div class="mt-4 bg-slate-700 p-3 rounded text-sm text-slate-300 italic">
-                            "Réservé aux banques et environnements réglementés."
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="solution4" class="mb-24 scroll-mt-24 page-break">
-            <div class="flex items-baseline gap-4 mb-6 border-b border-brand-warning pb-4">
-                <h2 class="font-serif text-4xl text-slate-900">04. VM User (Locale)</h2>
-                <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold uppercase rounded">⚠️ Fausse bonne idée</span>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div class="lg:col-span-2 space-y-8">
-                    <div>
-                        <h4 class="font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-laptop-code text-brand-warning"></i> Principe</h4>
-                        <p class="text-slate-600 leading-relaxed">
-                            TSS fournit une machine virtuelle (VirtualBox / VMware) installée directement sur le PC du client. Excel tourne dans cette boîte isolée. L'utilisateur travaille via une interface locale sans internet.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-2 font-medium">
-                            👉 L’idée marketing : "Le moteur est isolé, donc protégé".
-                        </p>
-                    </div>
-
-                    <div class="bg-amber-50 border-l-4 border-brand-warning p-6 rounded-r-lg">
-                        <h5 class="font-bold text-amber-900 mb-2 text-lg">❌ Problème fondamental : "Illusion de sécurité"</h5>
-                        <p class="text-amber-900/80 mb-4">
-                            La VM est sur la machine du client. Le client est administrateur de sa machine.
-                        </p>
-                        <ul class="space-y-2 text-sm text-amber-900/90 font-medium">
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-1"></i> Il peut faire des "Snapshots" (photos de la mémoire).</li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-1"></i> Il peut copier les disques virtuels.</li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-triangle-exclamation mt-1"></i> Un utilisateur motivé peut extraire Excel et analyser le moteur.</li>
-                        </ul>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-slate-100 p-5 rounded-lg border border-slate-200">
-                            <h5 class="font-bold text-slate-700 mb-2 text-sm">✅ Avantages apparents</h5>
-                            <ul class="space-y-1 text-sm text-slate-600">
-                                <li>• 100% Offline</li>
-                                <li>• Pas de serveur distant</li>
-                                <li>• Facile à déployer techniquement</li>
-                                <li>• Rassure certains clients "tech"</li>
-                            </ul>
-                        </div>
-                        <div class="bg-slate-100 p-5 rounded-lg border border-slate-200">
-                            <h5 class="font-bold text-slate-700 mb-2 text-sm">⚖️ Verdict Honnête</h5>
-                            <p class="text-sm text-slate-600 italic">
-                                "Elle complique la vie de l’utilisateur honnête plus qu’elle ne bloque un voleur motivé. À éviter sauf cas très spécifique."
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1">
-                    <div class="bg-white border-2 border-brand-warning/20 p-6 rounded-xl shadow-sm sticky top-24">
-                        <h5 class="font-serif text-xl text-slate-900 mb-4 pb-2 border-b border-slate-100">Coûts</h5>
-                        
-                        <div class="mb-4">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Développement</p>
-                            <p class="text-xl font-serif text-slate-900">300k - 1.3M <span class="text-sm font-sans font-normal opacity-80">FCFA</span></p>
-                        </div>
-
-                        <div class="mb-4">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Support / Bugs</p>
-                            <p class="text-lg font-serif text-slate-900">Moyen</p>
-                            <p class="text-xs text-slate-500">Problèmes de compatibilité fréquents.</p>
-                        </div>
-
-                        <div class="mt-4 bg-amber-50 p-3 rounded text-sm text-amber-800 italic border border-amber-100">
-                            "Niveau réel de sécurité : Moyen (🟡). Pas beaucoup plus sûr que la solution 1."
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="conclusion" class="mb-20 pt-10 border-t border-slate-200">
-            <h2 class="font-serif text-3xl text-slate-900 mb-8 text-center">Tableau Comparatif Final</h2>
+    <div id="internal-view" class="workspace-view active internal-grid">
+        <div class="panel-content border-right">
+            <h2 class="section-headline">Initiate Liquidity Request</h2>
+            <p class="section-desc">Submit a portfolio budget. This request requires Central Bank (BEAC) validation before digital escrow is created.</p>
             
-            <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600 min-w-[900px]">
-                    <thead class="bg-slate-50 text-slate-900 font-bold uppercase text-xs tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4">Critère</th>
-                            <th class="px-6 py-4 w-1/5">1. Offline (Confusion)</th>
-                            <th class="px-6 py-4 bg-blue-50 text-blue-900 w-1/5">2. VM Online (Cloud)</th>
-                            <th class="px-6 py-4 w-1/5">3. VM Offline (Local)</th>
-                            <th class="px-6 py-4 bg-amber-50 text-amber-900 w-1/5 border-b-2 border-brand-warning">4. VM User (Local)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Sans Internet ?</td>
-                            <td class="px-6 py-4 text-green-600 font-medium">✅ Oui</td>
-                            <td class="px-6 py-4 bg-blue-50/30 text-red-600 font-medium">❌ Non (besoin connexion)</td>
-                            <td class="px-6 py-4 text-green-600 font-medium">✅ Oui</td>
-                            <td class="px-6 py-4 bg-amber-50/30 text-green-600 font-medium">✅ Oui</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Sécurité Moteur</td>
-                            <td class="px-6 py-4 text-brand-gold">🟡 Forte (95%)</td>
-                            <td class="px-6 py-4 bg-blue-50/30 text-green-600 font-bold">✅ Maximale</td>
-                            <td class="px-6 py-4 text-green-600 font-bold">🟢 Très Forte</td>
-                            <td class="px-6 py-4 bg-amber-50/30 text-brand-gold font-bold">🟡 Moyenne</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Fichier Source livré ?</td>
-                            <td class="px-6 py-4">Oui (Obfusqué)</td>
-                            <td class="px-6 py-4 bg-blue-50/30 font-semibold">❌ Jamais</td>
-                            <td class="px-6 py-4 font-semibold">❌ Jamais</td>
-                            <td class="px-6 py-4 bg-amber-50/30 text-brand-warning font-semibold">⚠️ Dans la VM</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Simplicité Install</td>
-                            <td class="px-6 py-4 text-green-600">✅ Très simple</td>
-                            <td class="px-6 py-4 bg-blue-50/30 text-brand-gold">🟡 Moyenne</td>
-                            <td class="px-6 py-4 text-red-600">❌ Complexe</td>
-                            <td class="px-6 py-4 bg-amber-50/30 text-brand-gold">🟡 Moyenne</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Coût Initial</td>
-                            <td class="px-6 py-4 text-green-600">💰 Faible</td>
-                            <td class="px-6 py-4 bg-blue-50/30 text-brand-gold">💰💰 Moyen</td>
-                            <td class="px-6 py-4 text-red-600">💰💰💰 Élevé</td>
-                            <td class="px-6 py-4 bg-amber-50/30 text-brand-gold">💰💰 Moyen</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Coût Mensuel</td>
-                            <td class="px-6 py-4 text-green-600">💸 Quasi nul</td>
-                            <td class="px-6 py-4 bg-blue-50/30 text-brand-gold">💸💸 Moyen</td>
-                            <td class="px-6 py-4 text-red-600">💸💸 Élevé (Maint.)</td>
-                            <td class="px-6 py-4 bg-amber-50/30">💸 Faible</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">Contrôle Client</td>
-                            <td class="px-6 py-4">Total</td>
-                            <td class="px-6 py-4 bg-blue-50/30">Nul (Blackbox)</td>
-                            <td class="px-6 py-4">Physique</td>
-                            <td class="px-6 py-4 bg-amber-50/30 text-red-600">Admin (Risque)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            <form id="allocationForm" onsubmit="handleAllocationSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">Central Bank Validator</label>
+                    <select class="form-select" id="centralBank">
+                        <option value="BEAC Yaoundé">BEAC (Bank of Central African States)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Managing Ministry</label>
+                    <select class="form-select" id="targetMinistry">
+                        <option value="Ministry of Public Works">Ministry of Public Works</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Portfolio Title</label>
+                    <input type="text" class="form-input" id="projectName" placeholder="e.g., Douala Highway Logistics" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Portfolio Budget Request (FCFA)</label>
+                    <input type="text" class="form-input" id="portfolioAmount" placeholder="e.g., 500,000,000" required>
+                </div>
+                <button type="submit" class="btn-submit">Submit to BEAC for Approval & Minting</button>
+            </form>
 
-        <section class="bg-slate-900 text-white p-10 md:p-14 rounded-2xl text-center relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-12 opacity-5"><i class="fa-solid fa-quote-right text-9xl"></i></div>
+            <div class="gateway-card">
+                <strong>Governance Rule:</strong> The Ministry cannot mint tokens directly. This submission sends an Oracle Request to BEAC. If BEAC confirms the physical funds exist in the treasury account, BEAC signs the contract to lock the fiat and mint the corresponding digital asset.
+            </div>
+        </div>
+
+        <div class="panel-content" style="background: var(--slate-50);">
+            <h2 class="section-headline">Active Intergovernmental Portfolios</h2>
+            <div id="matrixContainer"></div>
+        </div>
+    </div>
+
+    <div id="public-view" class="workspace-view public-grid">
+        <div class="project-pane">
+            <div class="pane-header">Public Portfolios</div>
+            <div id="publicProjectList"></div>
+        </div>
+        
+        <div class="panel-content">
+            <div class="stream-intro" style="margin-bottom: 2.5rem;">
+                <div class="stream-title" id="activeProjectTitle" style="font-weight:700; font-size:1.25rem;">Select a portfolio to trace</div>
+            </div>
+
+            <div class="visual-map-container">
+                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-100); padding-bottom: 0.75rem;">
+                    Tranche 1 (Phase 1) Disbursement Pipeline
+                </div>
+                <div class="map-nodes-wrapper" id="liveMapNodes"></div>
+            </div>
+
+            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; color: var(--slate-600);">Complete Financial Lifecycle Audit</h3>
+            <div class="provenance-timeline" id="publicTimeline"></div>
+        </div>
+    </div>
+
+    <script>
+        const globalLedgerState = [
+            {
+                id: "p-1",
+                title: "Yaoundé - Douala Highway Rest Station Procurement",
+                ministry: "Ministry of Public Works",
+                totalValue: "500,000,000 FCFA",
+                mapSchema: [
+                    { label: "1. BEAC Central Bank", val: "500M FCFA Locked", state: "active-clear", status: "Validated & Minted" },
+                    { label: "2. Gov Escrow (Tranche 1)", val: "150M FCFA Released", state: "active-pending", status: "Sent to Vendor Wallet" },
+                    { label: "3. Commercial Clearing", val: "150M FCFA Settled", state: "active-clear", status: "Converted to Fiat Cash" }
+                ],
+                flowNodes: [
+                    {
+                        type: "info",
+                        step: "01 // Ministry Budget Initialization",
+                        amount: "<small>Total Budget Requested</small> 500,000,000 FCFA",
+                        origin: "Ministry of Finance Terminal",
+                        target: "BEAC Validator Node",
+                        status: "Awaiting Bank Approval",
+                        hash: "0xPENDING_VALIDATION_REQUEST",
+                        banner: "Request Submitted: The Ministry has allocated a 500M FCFA budget for this project and submitted the smart contract request to the Central Bank for physical verification."
+                    },
+                    {
+                        type: "success",
+                        step: "02 // BEAC Bank Approval & Token Minting",
+                        amount: "<small>Total Budget Locked</small> 500,000,000 FCFA",
+                        origin: "BEAC Validator Node",
+                        target: "Main Project Escrow Contract",
+                        status: "Fiat Locked // Tokens Minted",
+                        hash: "0x111bc14aef912bb007812bc8712aef00913cba1192eab8832aefb712399aaee12",
+                        banner: "Approval Confirmed: BEAC verified that 500M FCFA is available in the sovereign reserve. They have cryptographically locked the fiat cash and minted 500M digital tokens into the project's master escrow."
+                    },
+                    {
+                        type: "tampered",
+                        step: "03 // Unauthorized Vendor Tranche Alteration Attempt",
+                        amount: "<small>Attempted Tranche</small> 250,000,000 FCFA",
+                        origin: "Regional Sub-Department Terminal",
+                        target: "Vendor Wallet",
+                        status: "Fraud Intercepted",
+                        hash: "CRITICAL_HASH_BREAK // Parameter Mismatch",
+                        banner: "Tamper Prevented: A regional administrator attempted to manually release 250M FCFA for Phase 1. The smart contract strictly dictates that Tranche 1 is capped at 150M FCFA. The ledger rejected the transaction and locked the regional terminal."
+                    },
+                    {
+                        type: "success",
+                        step: "04 // Final Settlement: Phase 1 Vendor Payout",
+                        amount: "<small>Tranche 1 Payout</small> 150,000,000 FCFA",
+                        origin: "Main Project Escrow Contract",
+                        target: "Commercial Clearing Bank (Ecobank)",
+                        status: "Tokens Burned // Fiat Released",
+                        hash: "0x992cc14aef912bb007812bc8712aef00913cba1192eab8832aefb712399aaf441",
+                        banner: "Milestone Paid: The vendor successfully completed Phase 1. The escrow released 150M tokens to the vendor. The vendor routed these tokens to Ecobank, which verified the ledger, burned the 150M tokens, and deposited 150M physical fiat FCFA into the vendor's checking account. (Remaining Escrow Balance: 350M FCFA)."
+                    }
+                ]
+            }
+        ];
+
+        let selectedProjectId = "p-1";
+
+        function switchWorkspace(view) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.workspace-view').forEach(v => v.classList.remove('active'));
             
-            <h3 class="font-serif text-2xl md:text-3xl mb-6 relative z-10">Le Verdict de l'Expert</h3>
-            <div class="max-w-3xl mx-auto text-lg leading-relaxed text-slate-300 relative z-10 space-y-4">
-                <p>
-                    "Si le client souhaite une solution <strong>Low Cost</strong> et accepte un risque minime de sécurité, la <strong>Solution 1 (Offline)</strong> reste la plus pragmatique."
-                </p>
-                <p>
-                    "En revanche, pour une image <strong>Premium</strong> et une <strong>Sécurité Absolue</strong> (si Internet le permet), la <strong>Solution 2 (VM Online)</strong> est l'investissement roi."
-                </p>
-            </div>
+            if(view === 'internal') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('internal-view').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('public-view').classList.add('active');
+                renderPublicView();
+            }
+        }
+
+        function renderInternalMatrix() {
+            const container = document.getElementById('matrixContainer');
+            container.innerHTML = '';
+            globalLedgerState.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'matrix-item';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.75rem;">
+                        <span style="font-weight:700; color:var(--slate-600);">${item.ministry}</span>
+                        <strong style="font-family:var(--font-mono); color:var(--brand-blue-deep);">${item.totalValue}</strong>
+                    </div>
+                    <div style="font-size:0.9rem; font-weight:600; line-height:1.4;">${item.title}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleAllocationSubmit(e) {
+            e.preventDefault();
+            const ministry = document.getElementById('targetMinistry').value;
+            const bank = document.getElementById('centralBank').value;
+            const name = document.getElementById('projectName').value;
+            const rawAmount = document.getElementById('portfolioAmount').value;
+            const amount = parseInt(rawAmount.replace(/,/g, '')).toLocaleString() + " FCFA";
+            const newId = "p-" + (globalLedgerState.length + 1);
             
-            <div class="mt-10 flex flex-col md:flex-row gap-4 justify-center relative z-10 no-print">
-                <a href="mailto:contact@atobouh.com" class="bg-brand-blue hover:bg-blue-600 text-white px-8 py-3 rounded font-medium transition-colors">
-                    Discuter du choix
-                </a>
-            </div>
-        </section>
+            const newPortfolio = {
+                id: newId, title: name, ministry: ministry, totalValue: amount,
+                mapSchema: [
+                    { label: "1. BEAC Central Bank", val: `${amount} Pending`, state: "active-pending", status: "Awaiting Verification" },
+                    { label: "2. Gov Escrow", val: "0 FCFA", state: "active-clear", status: "Inactive" },
+                    { label: "3. Commercial Clearing", val: "0 FCFA", state: "active-clear", status: "Inactive" }
+                ],
+                flowNodes: [
+                    {
+                        type: "info",
+                        step: "01 // Ministry Budget Initialization",
+                        amount: `<small>Total Budget Requested</small> ${amount}`,
+                        origin: "Ministry of Finance Terminal",
+                        target: "BEAC Validator Node",
+                        status: "Awaiting Bank Approval",
+                        hash: "0xPENDING_VALIDATION_REQUEST",
+                        banner: `The Ministry has requested to lock ${amount} into the smart escrow. Awaiting signature from the Central Bank (BEAC) to authorize the minting of corresponding digital ledger tokens.`
+                    }
+                ]
+            };
 
-    </main>
+            globalLedgerState.unshift(newPortfolio);
+            selectedProjectId = newId;
+            
+            document.getElementById('projectName').value = '';
+            document.getElementById('portfolioAmount').value = '';
+            
+            renderInternalMatrix();
+            alert(`Budget Submitted to ${bank} for Approval!\n\nOnce the bank verifies the physical reserves, the tokens will automatically be minted into the smart contract.\n\nCheck the Public Audit Ledger to view the pending status.`);
+        }
 
-    <footer class="bg-slate-100 border-t border-slate-200 py-10 text-center no-print">
-        <p class="text-slate-500 text-sm">© 2024 Atobouh Ariel - Document Confidentiel - Ne pas diffuser sans autorisation.</p>
-    </footer>
+        function renderPublicView() {
+            const listContainer = document.getElementById('publicProjectList');
+            listContainer.innerHTML = '';
 
+            globalLedgerState.forEach(item => {
+                const row = document.createElement('div');
+                row.className = `procurement-row ${item.id === selectedProjectId ? 'active' : ''}`;
+                row.onclick = () => { selectedProjectId = item.id; renderPublicView(); };
+                row.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--slate-600); margin-bottom:0.25rem;">
+                        <span>PORTFOLIO: ${item.id.toUpperCase()}</span>
+                        <strong style="font-family:var(--font-mono)">${item.totalValue}</strong>
+                    </div>
+                    <div style="font-size:0.85rem; font-weight:600; line-height:1.3;">${item.title}</div>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            const activeProj = globalLedgerState.find(p => p.id === selectedProjectId);
+            document.getElementById('activeProjectTitle').innerText = activeProj.title;
+
+            const mapWrapper = document.getElementById('liveMapNodes');
+            mapWrapper.innerHTML = '';
+            
+            activeProj.mapSchema.forEach((node, nIdx) => {
+                const nodeHtml = document.createElement('div');
+                nodeHtml.className = `map-node ${node.state}`;
+                nodeHtml.innerHTML = `
+                    <div class="map-node-title">${node.label}</div>
+                    <div class="map-node-value">${node.val}</div>
+                    <div class="map-node-status ${node.state === 'active-pending' ? 'status-pending' : 'status-clear'}">${node.status}</div>
+                `;
+                mapWrapper.appendChild(nodeHtml);
+                
+                if(nIdx < activeProj.mapSchema.length - 1) {
+                    const line = document.createElement('div');
+                    line.className = `map-connector-line ${node.state === 'active-clear' ? 'passed' : ''}`;
+                    mapWrapper.appendChild(line);
+                }
+            });
+
+            const timeline = document.getElementById('publicTimeline');
+            timeline.innerHTML = '';
+
+            activeProj.flowNodes.forEach(node => {
+                const stepNode = document.createElement('div');
+                stepNode.className = `tx-block-node ${node.type}`;
+                stepNode.innerHTML = `
+                    <div class="node-icon-anchor">
+                        ${node.type === 'success' ? '✓' : node.type === 'info' ? 'ℹ' : '✕'}
+                    </div>
+                    <div class="tx-card ${node.type === 'tampered' ? 'alert-border' : node.type === 'info' ? 'info-border' : ''}">
+                        <div class="tx-card-header">
+                            <span class="tx-step-label" style="font-weight:600; color: ${node.type === 'tampered' ? 'var(--rose-600)' : node.type === 'info' ? 'var(--brand-blue-deep)' : 'var(--slate-900)'}">${node.step}</span>
+                            <span class="tx-value" style="color: ${node.type === 'tampered' ? 'var(--rose-600)' : 'var(--slate-900)'}">${node.amount}</span>
+                        </div>
+                        <div class="tx-grid-details">
+                            <div><div class="label-text">Origin Node</div><div class="value-text">${node.origin}</div></div>
+                            <div><div class="label-text">Recipient Node</div><div class="value-text">${node.target}</div></div>
+                            <div><div class="label-text">Action State</div><div class="value-text" style="color:${node.type === 'success' ? 'var(--emerald-700)' : node.type === 'info' ? 'var(--brand-blue-deep)' : 'var(--rose-600)'}">${node.status}</div></div>
+                        </div>
+                        <div class="crypto-hash-strip">
+                            <span>Ledger State Parameter:</span>
+                            <span>${node.hash}</span>
+                        </div>
+                        <div class="governance-status-banner ${node.type === 'success' ? 'valid' : node.type === 'info' ? 'info' : 'invalid'}">
+                            ${node.banner}
+                        </div>
+                    </div>
+                `;
+                timeline.appendChild(stepNode);
+            });
+        }
+
+        renderInternalMatrix();
+    </script>
 </body>
 </html>
