@@ -145,6 +145,99 @@
         .doc-heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--slate-900); display: flex; align-items: center; gap: 8px; }
         .doc-text { font-size: 0.88rem; color: var(--slate-700); margin-bottom: 1rem; text-align: justify; }
         .doc-block { background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 8px; padding: 1rem; margin-top: 0.5rem; font-size: 0.85rem; }
+
+        /* SMOOTH MOBILE VIEW UI RESPONSIVENESS PATCH overrides */
+        @media (max-width: 991px) {
+            header {
+                flex-direction: column;
+                height: auto;
+                padding: 1rem;
+                gap: 0.85rem;
+                align-items: stretch;
+            }
+            header style + div, header > div:last-child {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem !important;
+                align-items: stretch !important;
+            }
+            .view-switcher-tabs {
+                width: 100%;
+            }
+            .view-switcher-tabs .tab-btn {
+                flex: 1;
+                justify-content: center;
+                padding: 0.6rem 0.5rem;
+                font-size: 0.8rem;
+            }
+            header .tab-btn:not(.view-switcher-tabs .tab-btn) {
+                width: 100%;
+                justify-content: center;
+                padding: 0.6rem;
+            }
+            .internal-grid, .public-grid {
+                grid-template-columns: 1fr;
+            }
+            .workspace-view {
+                min-height: auto;
+            }
+            .panel-content {
+                padding: 2rem 1.25rem;
+            }
+            .border-right {
+                border-right: none;
+                border-bottom: 1px solid var(--slate-200);
+            }
+            .project-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--slate-200);
+                max-height: 260px;
+                overflow-y: auto;
+            }
+            
+            /* Rotate Horizontal Flow Diagrams into a Clean Vertical Pipe Layout on Mobile */
+            .map-nodes-wrapper {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            .map-node {
+                width: 100%;
+                max-width: 320px;
+            }
+            .map-connector-line {
+                width: 2px;
+                height: 24px;
+                margin: 0 auto;
+                flex-grow: 0;
+            }
+            
+            /* Clean row layouts for transaction metric grids */
+            .tx-grid-details {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+            }
+            .tx-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .tx-value {
+                font-size: 1.1rem;
+            }
+            .crypto-hash-strip {
+                flex-direction: column;
+                gap: 0.25rem;
+                word-break: break-all;
+            }
+
+            /* Expand drawer overlay full width to avoid clipping on narrow screens */
+            .report-drawer {
+                width: 100%;
+                right: -100%;
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -236,7 +329,7 @@
         </div>
     </div>
 
-    <div class="drawer-backdrop" id="blueprintBackdrop" onclick="blueprintDrawer(false)"></div>
+    <div class="drawer-backdrop" id="blueprintBackdrop" onclick="toggleBlueprintDrawer(false)"></div>
     <div class="report-drawer" id="blueprintDrawer">
         <div class="drawer-header">
             <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; text-transform: uppercase; color: var(--slate-900);">
