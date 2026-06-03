@@ -310,8 +310,9 @@ function handleAllocate(e) {
         return;
     }
 
+    const allocId = generateId('A');
     const newAlloc = {
-        id: generateId('A'),
+        id: allocId,
         ministry,
         title,
         amount: amountNum,
@@ -328,7 +329,7 @@ function handleAllocate(e) {
                 title: "Funds Allocated by Treasury",
                 actor: "Treasury (MINFI)",
                 detail: `Treasury allocated ${formatFCFA(amountNum)} to ${ministry.split('(')[0].trim()} for project "${title}". Settlement will clear through ${clearingBank}.`,
-                hash: "0xALLOC_" + newAlloc.id
+                hash: "0xALLOC_" + allocId
             }
         ]
     };
@@ -342,7 +343,6 @@ function handleAllocate(e) {
     document.getElementById('allocClearingBank').value = '';
 
     switchTreasuryTab('dashboard');
-    renderTreasuryView();
     flashElement(document.getElementById('treasuryKPI'));
     showToast(`Allocation ${newAlloc.id} created — ${formatFCFA(amountNum)} sent to BEAC for validation.`);
 }
