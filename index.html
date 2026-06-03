@@ -39,6 +39,11 @@
                 <input type="password" class="form-input" id="loginPassword" placeholder="Enter role password">
             </div>
             <button class="btn-login" onclick="handleLogin()">Authenticate & Enter Terminal</button>
+            <div class="login-divider"><span>or</span></div>
+            <button class="btn-public-login" onclick="handlePublicAccess()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                View Public Ledger
+            </button>
         </div>
     </div>
 
@@ -182,6 +187,34 @@
                     <p class="section-desc" id="traceDesc">Select an allocation to view its complete audit trail.</p>
                     <div id="ministryTraceSelect" style="margin-bottom:1.5rem;"></div>
                     <div id="ministryTraceOutput"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PUBLIC VIEW ===== -->
+    <div id="publicView" class="role-view">
+        <div class="view-container public-view-container">
+            <div class="view-sidebar">
+                <div class="sidebar-title">Public Ledger</div>
+                <div class="sidebar-sub">Read-only access</div>
+                <div class="sidebar-menu">
+                    <button class="sidebar-btn active" onclick="switchPublicTab('overview')">Overview</button>
+                    <button class="sidebar-btn" onclick="switchPublicTab('trace')">Trace Funds</button>
+                </div>
+            </div>
+            <div class="view-main">
+                <div id="publicOverview" class="public-tab">
+                    <div class="kpi-row" id="publicKPI"></div>
+                    <h2 class="section-headline">All Sovereign Allocations</h2>
+                    <p class="section-desc">Public record of all intergovernmental fund allocations on the Sovereign Ledger.</p>
+                    <div id="publicAllocList"></div>
+                </div>
+                <div id="publicTrace" class="public-tab" style="display:none;">
+                    <h2 class="section-headline">Public Fund Trace</h2>
+                    <p class="section-desc">Select any validated allocation to trace its full audit trail on the ledger.</p>
+                    <div id="publicTraceSelect" style="margin-bottom:1.5rem;"></div>
+                    <div id="publicTraceOutput"></div>
                 </div>
             </div>
         </div>

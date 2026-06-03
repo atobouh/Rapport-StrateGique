@@ -2,7 +2,8 @@
   "roles": {
     "treasury": { "label": "Treasury Minister", "password": "treasury" },
     "beac": { "label": "BEAC Bank Validator", "password": "beac" },
-    "ministry": { "label": "Ministry Officer", "password": "ministry" }
+    "ministry": { "label": "Ministry Officer", "password": "ministry" },
+    "public": { "label": "Public Citizen", "password": "" }
   },
   "ministries": [
     "Ministry of Public Works (MINTP)",

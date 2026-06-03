@@ -4,7 +4,8 @@ const DEFAULT_DB = {
     roles: {
         treasury: { label: "Treasury Minister", password: "treasury" },
         beac: { label: "BEAC Bank Validator", password: "beac" },
-        ministry: { label: "Ministry Officer", password: "ministry" }
+        ministry: { label: "Ministry Officer", password: "ministry" },
+        public: { label: "Public Citizen", password: "" }
     },
     ministries: [
         "Ministry of Public Works (MINTP)",
@@ -68,6 +69,7 @@ let currentUser = null;
 let currentTreasuryTab = 'dashboard';
 let currentBeacTab = 'pending';
 let currentMinistryTab = 'myfunds';
+let currentPublicTab = 'overview';
 
 // ===== DB PERSISTENCE =====
 function loadDB() {
@@ -175,10 +177,19 @@ function handleLogin() {
 
 function handleLogout() {
     currentUser = null;
+    currentPublicTab = 'overview';
     document.getElementById('sessionLabel').textContent = 'Guest';
     document.getElementById('loginOverlay').classList.remove('hidden');
     document.querySelectorAll('.role-view').forEach(v => v.classList.remove('active'));
     document.getElementById('loginPassword').value = '';
+}
+
+function handlePublicAccess() {
+    currentUser = { role: 'public', institution: 'Public', label: 'Public Citizen' };
+    document.getElementById('sessionLabel').textContent = 'Public Citizen';
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('loginError').classList.remove('show');
+    showRoleView();
 }
 
 // ===== ROLE VIEW SWITCHING =====
@@ -202,6 +213,9 @@ function showRoleView() {
             currentUser.institution.split('(')[0].trim() + ' Terminal';
         document.getElementById('ministrySidebarSub').textContent = currentUser.institution;
         renderMinistryView();
+    } else if (currentUser.role === 'public') {
+        document.getElementById('publicView').classList.add('active');
+        renderPublicLedgerView();
     }
 }
 
@@ -327,8 +341,10 @@ function handleAllocate(e) {
     document.getElementById('allocMinistry').value = '';
     document.getElementById('allocClearingBank').value = '';
 
+    switchTreasuryTab('dashboard');
     renderTreasuryView();
-    showToast(`Allocation ${newAlloc.id} created. Awaiting BEAC validation.`);
+    flashElement(document.getElementById('treasuryKPI'));
+    showToast(`Allocation ${newAlloc.id} created — ${formatFCFA(amountNum)} sent to BEAC for validation.`);
 }
 
 function acceptRequest(reqId) {
@@ -386,6 +402,7 @@ function switchBeacTab(tab) {
 }
 
 function renderBeacView() {
+    if (!currentUser || currentUser.role !== 'beac') return;
     const pending = DB.allocations.filter(a => a.status === 'pending_validation');
     const validated = DB.allocations.filter(a => a.status === 'validated' && a.validatedBy === currentUser.institution);
 
@@ -432,7 +449,16 @@ function validateAllocation(allocId) {
 
     saveDB();
     renderBeacView();
+    flashElement(document.getElementById('beacValidatedList'));
     showToast(`Allocation ${alloc.id} validated. ${formatFCFA(alloc.amount)} locked in escrow.`);
+}
+
+// ===== UI HELPERS =====
+function flashElement(el) {
+    if (!el) return;
+    el.classList.remove('alloc-success-flash', 'validate-success-flash');
+    void el.offsetWidth;
+    el.classList.add('alloc-success-flash');
 }
 
 // ===== MINISTRY =====
@@ -447,6 +473,7 @@ function switchMinistryTab(tab) {
 }
 
 function renderMinistryView() {
+    if (!currentUser || currentUser.role !== 'ministry') return;
     const myAlloc = DB.allocations.filter(a => a.ministry === currentUser.institution);
     const myRequests = (DB.requests || []).filter(r => r.ministry === currentUser.institution);
 
@@ -569,11 +596,106 @@ function traceAllocation(allocId) {
     `;
 }
 
-// ===== INIT =====
-renderTreasuryView();
-renderBeacView();
-renderMinistryView();
+// ===== PUBLIC VIEW =====
+function switchPublicTab(tab) {
+    currentPublicTab = tab;
+    document.querySelectorAll('#publicView .sidebar-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#publicView .public-tab').forEach(t => t.style.display = 'none');
+    const idx = { overview: 0, trace: 1 };
+    document.querySelectorAll('#publicView .sidebar-btn')[idx[tab]].classList.add('active');
+    document.getElementById('public' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+    renderPublicLedgerView();
+}
 
+function renderPublicLedgerView() {
+    const all = DB.allocations;
+    const validated = all.filter(a => a.status === 'validated');
+    const pendingV = all.filter(a => a.status === 'pending_validation');
+    const totalAll = all.reduce((s, a) => s + a.amount, 0);
+
+    document.getElementById('publicKPI').innerHTML = `
+        <div class="kpi-tile accent-blue">
+            <div class="kpi-label">Total Ledger Exposure</div>
+            <div class="kpi-value">${formatFCFA(totalAll)}</div>
+            <div class="kpi-sub">${all.length} allocation${all.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="kpi-tile accent-emerald">
+            <div class="kpi-label">Validated & Locked</div>
+            <div class="kpi-value">${validated.length}</div>
+            <div class="kpi-sub">BEAC signed, escrow active</div>
+        </div>
+        <div class="kpi-tile accent-amber">
+            <div class="kpi-label">Awaiting Validation</div>
+            <div class="kpi-value">${pendingV.length}</div>
+            <div class="kpi-sub">Pending bank signature</div>
+        </div>`;
+
+    document.getElementById('publicAllocList').innerHTML = all.length === 0
+        ? '<div class="empty-state"><p>No allocations on the public ledger yet.</p></div>'
+        : renderAllocationTable(all, 'public');
+
+    const validatedAll = all.filter(a => a.status === 'validated');
+    document.getElementById('publicTraceSelect').innerHTML = validatedAll.length === 0
+        ? '<div class="empty-state"><p>No validated allocations to trace.</p></div>'
+        : `<div class="trace-select-row">
+            <div class="form-group">
+                <label class="form-label">Select Allocation to Trace</label>
+                <select class="form-select" id="publicTraceAllocSelect" onchange="traceAllocationPublic(this.value)">
+                    <option value="">Choose an allocation...</option>
+                    ${validatedAll.map(a => `<option value="${a.id}">${a.id} — ${a.title}</option>`).join('')}
+                </select>
+            </div>
+        </div>`;
+}
+
+function traceAllocationPublic(allocId) {
+    if (!allocId) return;
+    switchPublicTab('trace');
+    document.getElementById('publicTraceAllocSelect').value = allocId;
+
+    const alloc = DB.allocations.find(a => a.id === allocId);
+    if (!alloc) return;
+
+    document.getElementById('publicTraceSelect').querySelector('.form-label') &&
+        (document.getElementById('publicTraceSelect').innerHTML = `<div class="trace-select-row">
+            <div class="form-group">
+                <label class="form-label">Select Allocation to Trace</label>
+                <select class="form-select" id="publicTraceAllocSelect" onchange="traceAllocationPublic(this.value)">
+                    <option value="">Choose an allocation...</option>
+                    ${DB.allocations.filter(a => a.status === 'validated').map(a => `<option value="${a.id}" ${a.id === allocId ? 'selected' : ''}>${a.id} — ${a.title}</option>`).join('')}
+                </select>
+            </div>
+        </div>`);
+
+    const output = document.getElementById('publicTraceOutput');
+    if (!alloc.flowNodes || alloc.flowNodes.length === 0) {
+        output.innerHTML = '<div class="empty-state"><p>No ledger entries yet for this allocation.</p></div>';
+        return;
+    }
+
+    output.innerHTML = `
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:1.5rem; color:var(--slate-900);">
+            ${alloc.id}: ${alloc.title} — ${formatFCFA(alloc.amount)} · ${alloc.ministry.split('(')[0].trim()}
+        </div>
+        <div class="timeline">
+            ${alloc.flowNodes.map(n => `
+                <div class="timeline-node ${n.type === 'success' ? 'success' : n.type === 'warning' ? 'warning' : 'info'}">
+                    <div class="timeline-dot">${n.type === 'success' ? '✓' : n.type === 'warning' ? '!' : 'ℹ'}</div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="step-label" style="color:${n.type === 'success' ? 'var(--emerald-700)' : n.type === 'warning' ? 'var(--amber-700)' : 'var(--brand-blue-deep)'}">${n.step}</span>
+                        </div>
+                        <div class="timeline-card-title">${n.title}</div>
+                        <div class="timeline-card-actor">Actor: ${n.actor}</div>
+                        <div class="timeline-card-detail">${n.detail}</div>
+                        <span class="hash-strip">${n.hash}</span>
+                    </div>
+                </div>`).join('')}
+        </div>
+    `;
+}
+
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loginOverlay').classList.remove('hidden');
 });
