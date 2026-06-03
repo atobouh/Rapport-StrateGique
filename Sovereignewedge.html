@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Ledger — Fiat-to-Ledger Liquidity Architecture</title>
+    <link rel="stylesheet" href="sovereign.css">
+</head>
+<body>
+
+    <!-- LOGIN OVERLAY -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-shield">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <div class="login-title">Sovereign Ledger v4.0</div>
+            <div class="login-subtitle">Cameroon Intergovernmental<br>Fiat-to-Ledger Liquidity Terminal</div>
+            <div class="login-error" id="loginError"></div>
+            <div class="form-group">
+                <label class="form-label">Your Role</label>
+                <select class="form-select" id="loginRole" onchange="handleRoleChange()">
+                    <option value="">Select Role...</option>
+                    <option value="treasury">Treasury Minister</option>
+                    <option value="beac">BEAC Bank Validator</option>
+                    <option value="ministry">Ministry Officer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="institutionLabel">Institution</label>
+                <select class="form-select" id="loginInstitution">
+                    <option value="">Select Institution...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="loginPassword" placeholder="Enter role password">
+            </div>
+            <button class="btn-login" onclick="handleLogin()">Authenticate & Enter Terminal</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="brand-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Sovereign Ledger v4.0
+        </div>
+        <div class="header-right">
+            <div class="session-badge" id="sessionBadge">
+                <span class="session-dot active"></span>
+                <span id="sessionLabel">Guest</span>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </header>
+
+    <!-- ===== TREASURY VIEW ===== -->
+    <div id="treasuryView" class="role-view">
+        <div class="view-container">
+            <div class="view-sidebar">
+                <div class="sidebar-title">Treasury Terminal</div>
+                <div class="sidebar-sub">Ministry of Finance (MINFI)</div>
+                <div class="sidebar-menu">
+                    <button class="sidebar-btn active" onclick="switchTreasuryTab('dashboard')">Dashboard</button>
+                    <button class="sidebar-btn" onclick="switchTreasuryTab('allocate')">Allocate Funds</button>
+                    <button class="sidebar-btn" onclick="switchTreasuryTab('history')">Allocation History</button>
+                </div>
+            </div>
+            <div class="view-main">
+                <div id="treasuryDashboard" class="treasury-tab">
+                    <div class="kpi-row" id="treasuryKPI"></div>
+                    <h2 class="section-headline">Pending Ministry Requests</h2>
+                    <p class="section-desc">Ministries requesting funds. Accept to allocate.</p>
+                    <div id="treasuryRequestsList"></div>
+                </div>
+                <div id="treasuryAllocate" class="treasury-tab" style="display:none;">
+                    <h2 class="section-headline">Allocate Sovereign Funds</h2>
+                    <p class="section-desc">Allocate budget to a ministry. This will create an allocation awaiting BEAC validation.</p>
+                    <form id="allocateForm" onsubmit="handleAllocate(event)" class="treasury-form">
+                        <div class="form-group">
+                            <label class="form-label">Target Ministry</label>
+                            <select class="form-select" id="allocMinistry" required>
+                                <option value="">Select Ministry...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Portfolio / Project Title</label>
+                            <input type="text" class="form-input" id="allocTitle" placeholder="e.g., Douala Highway Logistics Phase II" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Allocation Amount (FCFA)</label>
+                            <input type="text" class="form-input" id="allocAmount" placeholder="e.g., 500,000,000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Clearing Bank (vendor settlement)</label>
+                            <select class="form-select" id="allocClearingBank" required>
+                                <option value="">Select Clearing Bank...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit">Allocate Funds & Send to BEAC</button>
+                    </form>
+                </div>
+                <div id="treasuryHistory" class="treasury-tab" style="display:none;">
+                    <h2 class="section-headline">All Allocation Records</h2>
+                    <p class="section-desc">Full history of all sovereign fund allocations across all ministries.</p>
+                    <div id="treasuryAllHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BEAC VIEW ===== -->
+    <div id="beacView" class="role-view">
+        <div class="view-container">
+            <div class="view-sidebar">
+                <div class="sidebar-title">BEAC Validator</div>
+                <div class="sidebar-sub" id="beacBranchLabel">Siège Yaoundé</div>
+                <div class="sidebar-menu">
+                    <button class="sidebar-btn active" onclick="switchBeacTab('pending')">Pending Validation</button>
+                    <button class="sidebar-btn" onclick="switchBeacTab('validated')">Validated Ledger</button>
+                </div>
+            </div>
+            <div class="view-main">
+                <div id="beacPending" class="beac-tab">
+                    <h2 class="section-headline">Awaiting Your Validation</h2>
+                    <p class="section-desc">Treasury allocations that require BEAC physical reserve verification before escrow minting.</p>
+                    <div id="beacPendingList"></div>
+                </div>
+                <div id="beacValidated" class="beac-tab" style="display:none;">
+                    <h2 class="section-headline">Validated Allocations</h2>
+                    <p class="section-desc">Allocations you have cryptographically validated and locked into escrow.</p>
+                    <div id="beacValidatedList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MINISTRY VIEW ===== -->
+    <div id="ministryView" class="role-view">
+        <div class="view-container">
+            <div class="view-sidebar">
+                <div class="sidebar-title" id="ministrySidebarTitle">Ministry Terminal</div>
+                <div class="sidebar-sub" id="ministrySidebarSub"></div>
+                <div class="sidebar-menu">
+                    <button class="sidebar-btn active" onclick="switchMinistryTab('myfunds')">My Allocations</button>
+                    <button class="sidebar-btn" onclick="switchMinistryTab('request')">Request Funds</button>
+                    <button class="sidebar-btn" onclick="switchMinistryTab('trace')">Trace Funds</button>
+                </div>
+            </div>
+            <div class="view-main">
+                <div id="ministryMyFunds" class="ministry-tab">
+                    <h2 class="section-headline">Funds Allocated to Your Ministry</h2>
+                    <p class="section-desc">View all sovereign allocations directed to your ministry, their validation status, and trace individual paths.</p>
+                    <div id="ministryAllocationsList"></div>
+                </div>
+                <div id="ministryRequest" class="ministry-tab" style="display:none;">
+                    <h2 class="section-headline">Request Sovereign Funds</h2>
+                    <p class="section-desc">Submit a funding request to the Treasury. If approved, funds will be allocated and sent to BEAC for validation.</p>
+                    <form id="requestForm" onsubmit="handleMinistryRequest(event)" class="treasury-form">
+                        <div class="form-group">
+                            <label class="form-label">Project / Portfolio Title</label>
+                            <input type="text" class="form-input" id="requestTitle" placeholder="e.g., School Infrastructure Phase I" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estimated Budget (FCFA)</label>
+                            <input type="text" class="form-input" id="requestBudget" placeholder="e.g., 250,000,000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Justification</label>
+                            <textarea class="form-input" id="requestReason" rows="3" placeholder="Briefly describe the need..." style="resize:vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Submit Funding Request</button>
+                    </form>
+                </div>
+                <div id="ministryTrace" class="ministry-tab" style="display:none;">
+                    <h2 class="section-headline">Trace Fund Path</h2>
+                    <p class="section-desc" id="traceDesc">Select an allocation to view its complete audit trail.</p>
+                    <div id="ministryTraceSelect" style="margin-bottom:1.5rem;"></div>
+                    <div id="ministryTraceOutput"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="sovereign.js"></script>
+</body>
+</html>

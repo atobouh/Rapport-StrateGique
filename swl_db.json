@@ -1,0 +1,62 @@
+{
+  "roles": {
+    "treasury": { "label": "Treasury Minister", "password": "treasury" },
+    "beac": { "label": "BEAC Bank Validator", "password": "beac" },
+    "ministry": { "label": "Ministry Officer", "password": "ministry" }
+  },
+  "ministries": [
+    "Ministry of Public Works (MINTP)",
+    "Ministry of Finance (MINFI)",
+    "Ministry of Public Health (MINSANTÉ)",
+    "Ministry of Secondary Education (MINESEC)",
+    "Ministry of Defense (MINDEF)",
+    "Ministry of Agriculture & Rural Development (MINADER)",
+    "Ministry of Transport (MINT)",
+    "Ministry of Water & Energy (MINEE)",
+    "Ministry of Territorial Administration (MINAT)",
+    "Ministry of Economy, Planning & Regional Development (MINEPAT)",
+    "Ministry of Housing & Urban Development (MINHDU)",
+    "Ministry of Livestock, Fisheries & Animal Industries (MINEPIA)",
+    "Ministry of Posts & Telecommunications (MINPOSTEL)",
+    "Ministry of Arts & Culture (MINAC)",
+    "Ministry of Youth & Civic Education (MINJEC)",
+    "Ministry of Women's Empowerment & Family (MINPROFF)"
+  ],
+  "beacBranches": [
+    "BEAC — Siège Yaoundé",
+    "BEAC — Agence de Douala",
+    "BEAC — Agence de Garoua",
+    "BEAC — Agence de Bafoussam"
+  ],
+  "clearingBanks": [
+    "Afriland First Bank",
+    "Société Générale Cameroun",
+    "BICEC",
+    "Ecobank Cameroun",
+    "SCB Cameroun",
+    "UBA Cameroun",
+    "CCA Bank",
+    "Banque Atlantique Cameroun",
+    "CBC — Commercial Bank of Cameroon"
+  ],
+  "allocations": [
+    {
+      "id": "A-0001",
+      "ministry": "Ministry of Public Works (MINTP)",
+      "title": "Yaoundé — Douala Highway Rest Station Procurement",
+      "amount": 500000000,
+      "clearingBank": "Ecobank Cameroun",
+      "status": "validated",
+      "createdBy": "treasury",
+      "createdAt": "2025-05-15T10:30:00.000Z",
+      "validatedBy": "BEAC — Siège Yaoundé",
+      "validatedAt": "2025-05-16T08:15:00.000Z",
+      "flowNodes": [
+        { "type": "info", "step": "01 — Ministry Request", "title": "Request Submitted", "actor": "Ministry of Public Works (MINTP)", "detail": "Ministry identified need for highway rest station project.", "hash": "0xREQ_001" },
+        { "type": "success", "step": "02 — Treasury Allocation", "title": "Funds Allocated", "actor": "Treasury (MINFI)", "detail": "Treasury allocated 500,000,000 FCFA via Ecobank Cameroun clearing.", "hash": "0xALLOC_A0001" },
+        { "type": "success", "step": "03 — BEAC Validation", "title": "Funds Validated & Locked", "actor": "BEAC — Siège Yaoundé", "detail": "BEAC confirmed physical reserves. 500M FCFA locked in escrow, digital tokens minted.", "hash": "0xVAL_001" }
+      ]
+    }
+  ],
+  "requests": []
+}
