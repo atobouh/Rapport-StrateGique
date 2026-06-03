@@ -215,7 +215,7 @@ function showRoleView() {
         renderMinistryView();
     } else if (currentUser.role === 'public') {
         document.getElementById('publicView').classList.add('active');
-        renderPublicLedgerView();
+        renderPublicOverview();
     }
 }
 
@@ -604,10 +604,10 @@ function switchPublicTab(tab) {
     const idx = { overview: 0, trace: 1 };
     document.querySelectorAll('#publicView .sidebar-btn')[idx[tab]].classList.add('active');
     document.getElementById('public' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-    renderPublicLedgerView();
+    if (tab === 'overview') renderPublicOverview();
 }
 
-function renderPublicLedgerView() {
+function renderPublicOverview() {
     const all = DB.allocations;
     const validated = all.filter(a => a.status === 'validated');
     const pendingV = all.filter(a => a.status === 'pending_validation');
@@ -633,39 +633,30 @@ function renderPublicLedgerView() {
     document.getElementById('publicAllocList').innerHTML = all.length === 0
         ? '<div class="empty-state"><p>No allocations on the public ledger yet.</p></div>'
         : renderAllocationTable(all, 'public');
-
-    const validatedAll = all.filter(a => a.status === 'validated');
-    document.getElementById('publicTraceSelect').innerHTML = validatedAll.length === 0
-        ? '<div class="empty-state"><p>No validated allocations to trace.</p></div>'
-        : `<div class="trace-select-row">
-            <div class="form-group">
-                <label class="form-label">Select Allocation to Trace</label>
-                <select class="form-select" id="publicTraceAllocSelect" onchange="traceAllocationPublic(this.value)">
-                    <option value="">Choose an allocation...</option>
-                    ${validatedAll.map(a => `<option value="${a.id}">${a.id} — ${a.title}</option>`).join('')}
-                </select>
-            </div>
-        </div>`;
 }
 
 function traceAllocationPublic(allocId) {
     if (!allocId) return;
     switchPublicTab('trace');
-    document.getElementById('publicTraceAllocSelect').value = allocId;
+    setTimeout(() => {
+        const sel = document.getElementById('publicTraceAllocSelect');
+        if (sel) sel.value = allocId;
+    }, 0);
 
     const alloc = DB.allocations.find(a => a.id === allocId);
     if (!alloc) return;
 
-    document.getElementById('publicTraceSelect').querySelector('.form-label') &&
-        (document.getElementById('publicTraceSelect').innerHTML = `<div class="trace-select-row">
+    const validatedAll = DB.allocations.filter(a => a.status === 'validated');
+    document.getElementById('publicTraceSelect').innerHTML = `
+        <div class="trace-select-row">
             <div class="form-group">
                 <label class="form-label">Select Allocation to Trace</label>
                 <select class="form-select" id="publicTraceAllocSelect" onchange="traceAllocationPublic(this.value)">
                     <option value="">Choose an allocation...</option>
-                    ${DB.allocations.filter(a => a.status === 'validated').map(a => `<option value="${a.id}" ${a.id === allocId ? 'selected' : ''}>${a.id} — ${a.title}</option>`).join('')}
+                    ${validatedAll.map(a => `<option value="${a.id}" ${a.id === allocId ? 'selected' : ''}>${a.id} — ${a.title}</option>`).join('')}
                 </select>
             </div>
-        </div>`);
+        </div>`;
 
     const output = document.getElementById('publicTraceOutput');
     if (!alloc.flowNodes || alloc.flowNodes.length === 0) {

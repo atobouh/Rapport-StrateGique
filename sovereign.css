@@ -74,7 +74,12 @@ header {
 .role-view { display: none; min-height: calc(100vh - 60px); }
 .role-view.active { display: block; }
 .view-container { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 60px); }
-.public-view-container { max-width: 1100px; margin: 0 auto; }
+.public-view-container { 
+    max-width: 1120px; margin: 0 auto; 
+    border-left: 1px solid var(--slate-200);
+    border-right: 1px solid var(--slate-200);
+    box-shadow: 0 0 30px rgba(0,0,0,0.03);
+}
 .view-sidebar { background: #fff; border-right: 1px solid var(--slate-200); padding: 1.5rem; }
 .sidebar-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--slate-600); margin-bottom: 0.2rem; letter-spacing: 0.04em; }
 .sidebar-sub { font-size: 0.7rem; color: var(--slate-400); margin-bottom: 1.5rem; }
