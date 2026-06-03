@@ -235,6 +235,7 @@ function populateAllocateForm() {
     const sel = document.getElementById('allocMinistry');
     sel.innerHTML = '<option value="">Select Ministry...</option>';
     DB.ministries.forEach(m => { sel.innerHTML += `<option value="${m}">${m}</option>`; });
+    sel.classList.remove('locked');
 
     const bankSel = document.getElementById('allocClearingBank');
     bankSel.innerHTML = '<option value="">Select Clearing Bank...</option>';
@@ -340,6 +341,7 @@ function handleAllocate(e) {
     document.getElementById('allocTitle').value = '';
     document.getElementById('allocAmount').value = '';
     document.getElementById('allocMinistry').value = '';
+    document.getElementById('allocMinistry').classList.remove('locked');
     document.getElementById('allocClearingBank').value = '';
 
     switchTreasuryTab('dashboard');
@@ -352,14 +354,17 @@ function acceptRequest(reqId) {
     if (!req) return;
 
     req.status = 'accepted';
+    saveDB();
 
+    // Pre-fill allocation form and lock ministry
     document.getElementById('allocMinistry').value = req.ministry;
+    document.getElementById('allocMinistry').classList.add('locked');
     document.getElementById('allocTitle').value = req.title;
     document.getElementById('allocAmount').value = (req.estimatedBudget || 0).toLocaleString();
+    document.getElementById('allocClearingBank').value = '';
 
-    saveDB();
     switchTreasuryTab('allocate');
-    showToast('Request accepted. Fill in the clearing bank and submit the allocation.');
+    showToast(`Request ${req.id} accepted — select a clearing bank and confirm the amount.`);
 }
 
 function renderAllocationTable(allocations, viewType) {
@@ -411,17 +416,28 @@ function renderBeacView() {
             '<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><p>No allocations awaiting validation.</p></div>';
     } else {
         document.getElementById('beacPendingList').innerHTML = pending.map(a => `
-            <div class="request-card">
-                <div class="request-info">
-                    <div class="request-meta">${a.id} · ${a.ministry.split('(')[0].trim()} · ${formatDate(a.createdAt)}</div>
-                    <div class="request-title">${a.title}</div>
-                    <div style="font-size:0.72rem; color:var(--slate-600); margin-top:0.2rem;">
-                        ${formatFCFA(a.amount)} · Clears via ${a.clearingBank}
+            <div class="beac-summary-card">
+                <div class="beac-summary-header">
+                    <span class="mono" style="font-weight:700;">${a.id}</span>
+                    <span class="status-badge pending">Pending Validation</span>
+                </div>
+                <div class="beac-summary-body">
+                    <div class="beac-summary-row">
+                        <div class="beac-field"><span class="label-text">Project</span><span class="value-text" style="font-size:0.82rem;">${a.title}</span></div>
+                    </div>
+                    <div class="beac-summary-row" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div class="beac-field"><span class="label-text">Amount to Lock</span><span class="value-text mono" style="color:var(--brand-blue-deep); font-size:0.92rem;">${formatFCFA(a.amount)}</span></div>
+                        <div class="beac-field"><span class="label-text">Target Ministry</span><span class="value-text">${a.ministry.split('(')[0].trim()}</span></div>
+                    </div>
+                    <div class="beac-summary-row" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div class="beac-field"><span class="label-text">Clearing Bank</span><span class="value-text">${a.clearingBank}</span></div>
+                        <div class="beac-field"><span class="label-text">Allocated By</span><span class="value-text">Treasury (MINFI) · ${formatDate(a.createdAt)}</span></div>
+                    </div>
+                    <div class="beac-field" style="margin-top:0.75rem; padding:0.65rem 0.75rem; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; font-size:0.72rem; color:#92400e; line-height:1.5;">
+                        <strong>Confirm:</strong> By validating, you certify that ${formatFCFA(a.amount)} exists in the sovereign treasury reserve. This action mints digital tokens and locks the physical fiat. This is irreversible.
                     </div>
                 </div>
-                <div class="request-actions">
-                    <button class="btn-sm btn-validate" onclick="validateAllocation('${a.id}')">Validate & Lock</button>
-                </div>
+                <button class="btn-validate-full" onclick="validateAllocation('${a.id}')">Validate & Lock ${formatFCFA(a.amount)}</button>
             </div>`).join('');
     }
 
@@ -477,26 +493,47 @@ function renderMinistryView() {
     const myAlloc = DB.allocations.filter(a => a.ministry === currentUser.institution);
     const myRequests = (DB.requests || []).filter(r => r.ministry === currentUser.institution);
 
-    // My Allocations
-    if (myAlloc.length === 0) {
+    // Merge requests and allocations into one unified list
+    const merged = [
+        ...myRequests.map(r => ({ type: 'request', id: r.id, title: r.title, amount: r.estimatedBudget, status: r.status, createdAt: r.createdAt, reason: r.reason })),
+        ...myAlloc.map(a => ({ type: 'allocation', id: a.id, title: a.title, amount: a.amount, status: a.status, createdAt: a.createdAt, clearingBank: a.clearingBank, flowNodes: a.flowNodes }))
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (merged.length === 0) {
         document.getElementById('ministryAllocationsList').innerHTML =
-            '<div class="empty-state"><p>No allocations to your ministry yet. Treasury has not allocated any funds.</p></div>';
+            '<div class="empty-state"><p>No allocations or requests yet. Submit a funding request or wait for Treasury.</p></div>';
     } else {
-        document.getElementById('ministryAllocationsList').innerHTML = myAlloc.map(a => {
-            const canTrace = a.status === 'validated';
+        document.getElementById('ministryAllocationsList').innerHTML = merged.map(item => {
+            if (item.type === 'request') {
+                return `
+                <div class="request-card">
+                    <div class="request-info">
+                        <div class="request-meta">${item.id} · ${formatDate(item.createdAt)}</div>
+                        <div class="request-title">${item.title}</div>
+                        <div style="font-size:0.72rem; color:var(--slate-600); margin-top:0.2rem;">
+                            Estimated: ${formatFCFA(item.amount || 0)} · <span class="status-badge requested">Requested</span>
+                            ${item.reason ? '· ' + item.reason : ''}
+                        </div>
+                    </div>
+                    <div class="request-actions">
+                        <span style="font-size:0.68rem; color:var(--slate-400);">Awaiting Treasury</span>
+                    </div>
+                </div>`;
+            }
+            const canTrace = item.status === 'validated';
             return `
             <div class="request-card">
                 <div class="request-info">
-                    <div class="request-meta">${a.id} · ${formatDate(a.createdAt)}</div>
-                    <div class="request-title">${a.title}</div>
+                    <div class="request-meta">${item.id} · ${formatDate(item.createdAt)}</div>
+                    <div class="request-title">${item.title}</div>
                     <div style="font-size:0.72rem; color:var(--slate-600); margin-top:0.2rem;">
-                        ${formatFCFA(a.amount)} · <span class="status-badge ${a.status === 'validated' ? 'validated' : 'pending'}">${a.status === 'validated' ? 'Validated & Locked' : 'Awaiting BEAC'}</span>
-                        ${a.clearingBank ? '· ' + a.clearingBank : ''}
+                        ${formatFCFA(item.amount)} · <span class="status-badge ${item.status === 'validated' ? 'validated' : 'pending'}">${item.status === 'validated' ? 'Validated & Locked' : 'Awaiting BEAC'}</span>
+                        ${item.clearingBank ? '· ' + item.clearingBank : ''}
                     </div>
                 </div>
                 <div class="request-actions">
                     ${canTrace
-                        ? `<button class="btn-sm btn-trace" onclick="traceAllocation('${a.id}')">Trace Path</button>`
+                        ? `<button class="btn-sm btn-trace" onclick="traceAllocation('${item.id}')">Trace Path</button>`
                         : `<span style="font-size:0.68rem; color:var(--slate-400);">Awaiting validation</span>`}
                 </div>
             </div>`;
@@ -504,15 +541,15 @@ function renderMinistryView() {
     }
 
     // Trace select
-    if (myAlloc.length > 0) {
-        const validated = myAlloc.filter(a => a.status === 'validated');
+    const myValidated = myAlloc.filter(a => a.status === 'validated');
+    if (myValidated.length > 0) {
         document.getElementById('ministryTraceSelect').innerHTML = `
             <div class="trace-select-row">
                 <div class="form-group">
                     <label class="form-label">Select Allocation to Trace</label>
                     <select class="form-select" id="traceAllocSelect" onchange="traceAllocation(this.value)">
                         <option value="">Choose an allocation...</option>
-                        ${validated.map(a => `<option value="${a.id}">${a.id} — ${a.title}</option>`).join('')}
+                        ${myValidated.map(a => `<option value="${a.id}">${a.id} — ${a.title}</option>`).join('')}
                     </select>
                 </div>
             </div>`;
@@ -605,6 +642,23 @@ function switchPublicTab(tab) {
     document.querySelectorAll('#publicView .sidebar-btn')[idx[tab]].classList.add('active');
     document.getElementById('public' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
     if (tab === 'overview') renderPublicOverview();
+    if (tab === 'trace') renderPublicTrace();
+}
+
+function renderPublicTrace() {
+    const validatedAll = DB.allocations.filter(a => a.status === 'validated');
+    document.getElementById('publicTraceSelect').innerHTML = validatedAll.length === 0
+        ? '<div class="empty-state"><p>No validated allocations to trace on the public ledger.</p></div>'
+        : `<div class="trace-select-row">
+            <div class="form-group">
+                <label class="form-label">Select Allocation to Trace</label>
+                <select class="form-select" id="publicTraceAllocSelect" onchange="traceAllocationPublic(this.value)">
+                    <option value="">Choose an allocation...</option>
+                    ${validatedAll.map(a => `<option value="${a.id}">${a.id} — ${a.title} (${formatFCFA(a.amount)})</option>`).join('')}
+                </select>
+            </div>
+        </div>`;
+    document.getElementById('publicTraceOutput').innerHTML = '';
 }
 
 function renderPublicOverview() {
